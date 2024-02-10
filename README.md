@@ -14,6 +14,7 @@ pip install pluxee-api
 ```
 
 ## Installation dev
+do not do that else it breaks everything on commit and undo all yout code changes...
 pre-commit install
 
 

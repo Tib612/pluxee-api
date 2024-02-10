@@ -1,6 +1,6 @@
 import pathlib
 from datetime import date
-
+import requests
 import pytest
 from pytest_mock import MockerFixture
 
@@ -23,32 +23,35 @@ def client():
 
 class TestPluxeeClient:
     def test_login(self, mocker, client: PluxeeClient):
+        session = requests.Session()
         mock_post: MockerFixture = mocker.patch(
             "requests.Session.post",
             return_value=MockAPIResponse(303, content="coucou", headers={"set-cookie": "key=value;..."}),
         )
-        client._login()
+        client._login(session) 
         mock_post.assert_called_once()
-        assert client._session.cookies
+        assert session.cookies
 
     def test_login_bad_password(self, mocker, client: PluxeeClient):
+        session = requests.Session()
         mock_post: MockerFixture = mocker.patch(
             "requests.Session.post",
             return_value=MockAPIResponse(302, content="coucou", headers={"set-cookie": "key=value;..."}),
         )
 
         with pytest.raises(PluxeeLoginError):
-            client._login()
+            client._login(session)
         mock_post.assert_called_once()
 
     def test_login_unknown_error(self, mocker, client: PluxeeClient):
+        session = requests.Session()
         mock_post: MockerFixture = mocker.patch(
             "requests.Session.post",
             return_value=MockAPIResponse(200, content="coucou", headers={"set-cookie": "key=value;..."}),
         )
 
         with pytest.raises(PluxeeAPIError):
-            client._login()
+            client._login(session)
         mock_post.assert_called_once()
 
     def test_get_balance(self, mocker, client: PluxeeClient):
@@ -73,7 +76,7 @@ class TestPluxeeClient:
                 MockAPIResponse(200, content=CONTENT_BALANCE),
             ],
         )
-        mock_login: MockerFixture = mocker.patch("pluxee.PluxeeClient._login", side_effect=lambda: 1 + 1)
+        mock_login: MockerFixture = mocker.patch("pluxee.PluxeeClient._login", side_effect=lambda _: 1 + 1)
 
         result = client.get_balance()
         assert mock_get.call_count == 2
@@ -117,7 +120,7 @@ class TestPluxeeClient:
         assert isinstance(transaction, PluxeeTransaction)
         assert transaction.date == date(2024, 1, 28)
         assert transaction.amount == 144
-        assert transaction.detail == "18 cheques de 8 € = 144 €. Expiry date: \n28.01.2025"
+        assert transaction.detail.replace("\r\n", "\n") == "18 cheques de 8 € = 144 €. Expiry date: \n28.01.2025"
         assert transaction.merchant == "YOUR EMPLOYER"
 
     def test_get_transactions_expired_cookie(self, mocker, client: PluxeeClient):
@@ -128,7 +131,7 @@ class TestPluxeeClient:
                 MockAPIResponse(200, content=CONTENT_TRANSACTIONS),
             ],
         )
-        mock_login: MockerFixture = mocker.patch("pluxee.PluxeeClient._login", side_effect=lambda: 1 + 1)
+        mock_login: MockerFixture = mocker.patch("pluxee.PluxeeClient._login", side_effect=lambda _: 1 + 1)
 
         transactions = client.get_transactions(PassType.LUNCH, date(2024, 1, 25), date(2024, 3, 1))
         assert mock_get.call_count == 2
@@ -147,7 +150,7 @@ class TestPluxeeClient:
         assert isinstance(transaction, PluxeeTransaction)
         assert transaction.date == date(2024, 1, 28)
         assert transaction.amount == 144
-        assert transaction.detail == "18 cheques de 8 € = 144 €. Expiry date: \n28.01.2025"
+        assert transaction.detail.replace("\r\n", "\n") == "18 cheques de 8 € = 144 €. Expiry date: \n28.01.2025"
         assert transaction.merchant == "YOUR EMPLOYER"
 
     def test_login_transactions_not_found(self, mocker, client: PluxeeClient):
