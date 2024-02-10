@@ -13,8 +13,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
-        python-version: ['3.5','3.6', '3.7', '3.8', '3.9', '3.10', '3.11', '3.12']
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11', '3.12', '3.13']
+        include:
+          - python-version: "3.13-dev"
+            toxenv: py3
+            check-latest: true
+            experimental: true
+            continue-on-error: true
 
     steps:
     - uses: actions/checkout@v3
@@ -30,5 +36,5 @@ jobs:
       run: tox
     - name: Install
       run: |
-        python setup.py sdist bdist_wheel
-        pip install dist/cf_remote-*.whl
+        python -m build
+        pip install dist/pluxee_api*.whl

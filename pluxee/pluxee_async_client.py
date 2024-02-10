@@ -16,7 +16,7 @@ class PluxeeAsyncClient(_PluxeeClient):
         # call login
         async with session.post(**self.gen_login_post_args()) as response:
             # Check if we are logged in
-            self.handle_login_status(response.status_code)
+            self.handle_login_status(response.status)
 
             # Setting the cookie
             try:

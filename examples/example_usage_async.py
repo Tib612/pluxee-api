@@ -1,14 +1,14 @@
 import asyncio
 from datetime import date
 
-from pluxee import PassType, PluxeeClient
+from pluxee import PassType, PluxeeAsyncClient
 
 
 async def main():
     username = input("Username: (leave empty to use PLUXEE_USERNAME env variable)")
     password = input("password: (leave empty to use PLUXEE_PASSWORD env variable)")
 
-    pc = PluxeeClient(username, password)
+    pc = PluxeeAsyncClient(username, password)
 
     balance = await pc.get_balance()
     print(balance)

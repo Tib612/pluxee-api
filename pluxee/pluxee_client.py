@@ -1,5 +1,5 @@
 from datetime import date
-from typing import List
+from typing import Optional
 
 import requests
 
@@ -12,10 +12,7 @@ class PluxeeClient(_PluxeeClient):
         # call login
         response = session.post(**self.gen_login_post_args())
         # Check if we are logged in
-        if response.status_code != 303:
-            if response.status_code == 302:
-                raise PluxeeLoginError(f"Bad username/password. {response.status_code}")
-            raise PluxeeAPIError(f"Pluxee webpage did not respond with the expected status. {response.status_code}")
+        self.handle_login_status(response.status_code)
 
         # Setting the cookie
         try:
@@ -44,8 +41,8 @@ class PluxeeClient(_PluxeeClient):
         return self._parse_balance_from_reponse(response)
 
     def get_transactions(
-        self, pass_type: PassType, since: date | None = None, until: date | None = None
-    ) -> List[PluxeeTransaction]:
+        self, pass_type: PassType, since: Optional[date] = None, until: Optional[date] = None
+    ) -> list[PluxeeTransaction]:
         """ "Since must be smaller that until.
         The list is retured with the oldest elements first."""
         session = requests.Session()

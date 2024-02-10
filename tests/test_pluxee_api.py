@@ -14,6 +14,7 @@ CONTENT_BALANCE = open(test_data_dir / "content_balance.html", "rb").read()
 CONTENT_EXPIRED_COOKIES = open(test_data_dir / "content_empty_balance.html", "rb").read()
 CONTENT_TRANSACTIONS = open(test_data_dir / "content_transactions.html", "rb").read()
 CONTENT_EMPTY_BALANCE = CONTENT_EMPTY_TRANSACTIONS = b'href="/fr/user/logout"'
+CONTENT_MALFORMED_TRANSACTIONS = open(test_data_dir / "content_malformed_transactions.html", "rb").read()
 
 
 @pytest.fixture(scope="function")
@@ -51,6 +52,17 @@ class TestPluxeeClient:
         )
 
         with pytest.raises(PluxeeAPIError):
+            client._login(session)
+        mock_post.assert_called_once()
+
+    def test_login_bad_cookie(self, mocker, client: PluxeeClient):
+        session = requests.Session()
+        mock_post: MockerFixture = mocker.patch(
+            "requests.Session.post",
+            return_value=MockAPIResponse(303, content="coucou", headers={"set-cookie": "...;..."}),
+        )
+
+        with pytest.raises(PluxeeLoginError):
             client._login(session)
         mock_post.assert_called_once()
 
@@ -157,6 +169,17 @@ class TestPluxeeClient:
         mock_get: MockerFixture = mocker.patch(
             "requests.Session.get",
             return_value=MockAPIResponse(200, content=CONTENT_EMPTY_TRANSACTIONS),
+        )
+
+        with pytest.raises(PluxeeAPIError):
+            client.get_transactions(PassType.LUNCH, date(2024, 1, 25), date(2024, 3, 1))
+        mock_get.assert_called_once()
+
+
+    def test_login_transactions_malformed(self, mocker, client: PluxeeClient):
+        mock_get: MockerFixture = mocker.patch(
+            "requests.Session.get",
+            return_value=MockAPIResponse(200, content=CONTENT_MALFORMED_TRANSACTIONS),
         )
 
         with pytest.raises(PluxeeAPIError):
