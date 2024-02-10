@@ -1,10 +1,7 @@
-import os
 from datetime import date
-from enum import Enum
 from typing import List
 
 import requests
-from requests import Response
 
 from .base_pluxee_client import PassType, PluxeeBalance, PluxeeTransaction, ResponseWrapper, _PluxeeClient
 from .exceptions import PluxeeAPIError, PluxeeLoginError
@@ -27,14 +24,10 @@ class PluxeeClient(_PluxeeClient):
         except Exception as e:
             raise PluxeeLoginError("Could not find the cookie in the login response") from e
 
-    @staticmethod
-    def _price_to_float(price) -> float:
-        return float(price.replace("€", "").replace(",", ".").replace("EUR", "").strip().replace(" ", ""))
-
-    def _make_request(self, url, params, session) -> Response:
+    def _make_request(self, url, params, session) -> ResponseWrapper:
         response = session.get(url, params=params)
         if 'href="/fr/user/logout"' in response.content.decode():
-            return response
+            return ResponseWrapper(response.content.decode(), response.status_code)
 
         # We got disconnected, the cookies expired
         self._login(session)
@@ -43,7 +36,7 @@ class PluxeeClient(_PluxeeClient):
         if response.status_code != 200:
             raise PluxeeAPIError(f"Pluxee webpage did not respond with the expected status. {response.status_code}")
 
-        return response
+        return ResponseWrapper(response.content.decode(), response.status_code)
 
     def get_balance(self) -> PluxeeBalance:
         session = requests.Session()
