@@ -1,7 +1,7 @@
 import os
 from datetime import date, datetime
 from enum import Enum
-from typing import Optional
+from typing import Optional, List, Tuple
 
 from bs4 import BeautifulSoup
 
@@ -112,7 +112,7 @@ class _PluxeeClient:
 
     def _parse_transactions_from_reponse(
         self, response: ResponseWrapper, since: Optional[date] = None, until: Optional[date] = None
-    ) -> tuple[list[PluxeeTransaction], bool]:
+    ) -> Tuple[List[PluxeeTransaction], bool]:
         dom = BeautifulSoup(response.content, features="html.parser")
 
         table = dom.select_one(self.TRANSACTION_TABLE_SELECTOR)

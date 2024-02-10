@@ -1,5 +1,5 @@
 from datetime import date
-from typing import Optional
+from typing import Optional, List
 
 import requests
 
@@ -42,7 +42,7 @@ class PluxeeClient(_PluxeeClient):
 
     def get_transactions(
         self, pass_type: PassType, since: Optional[date] = None, until: Optional[date] = None
-    ) -> list[PluxeeTransaction]:
+    ) -> List[PluxeeTransaction]:
         """ "Since must be smaller that until.
         The list is retured with the oldest elements first."""
         session = requests.Session()
