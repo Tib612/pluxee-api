@@ -1,0 +1,88 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pluxee-api"
+version = "0.0.1"
+authors = [{name = "Thibaut Capuano"}]
+maintainers = [{name = "Thibaut Capuano"}]
+description = "An unofficial python API to access Pluxee (Sodexo) balance and transactions"
+license = {file = "LICENSE"}
+keywords = ["pluxee", "sodexo", "api"]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.6",
+]
+
+[options]
+zip_safe = false
+include_package_data = true
+python_requires = ">=3"
+packages = ["pluxee-api"]
+install_requires = ["requests", "beautifulsoup4"]
+
+[options.extras_require]
+testing = [
+    "tox",
+    "flake8",
+    "mypy",
+    "pytest",
+    "pytest-mock",
+    "pytest-xdist",
+    "pytest-cov",
+]
+async = [
+    "aiohttp",
+]
+
+[options.package_data]
+pluxee = ["py.typed"]
+
+[tool.black]
+line-length = 130
+target-version = ["py311"]
+include = '\\.pyi?$'
+skip-string-normalization = true
+
+[flake8]
+max-line-length = 130
+per-file-ignores = "__init__.py:F401"
+ignore = ["E501"]
+exclude = ["examples", "tests"]
+
+[tool.isort]
+skip = ["\\.gitignore", "__init__.py"]
+line_length = 130
+multi_line_output = 3
+include_trailing_comma = true
+profile = "black"
+known_first_party = "pluxee-api"
+sections = "FUTURE,STDLIB,THIRDPARTY,FIRSTPARTY,LOCALFOLDER"
+combine_as_imports = true
+
+[tool.mypy]
+mypy_path = "src"
+check_untyped_defs = true
+disallow_any_generics = true
+ignore_missing_imports = true
+no_implicit_optional = true
+show_error_codes = true
+strict_equality = true
+warn_redundant_casts = true
+warn_return_any = true
+warn_unreachable = true
+warn_unused_configs = true
+no_implicit_reexport = true
+
+[project.urls]
+Homepage = "https://github.com/Tib612/pluxee-api"
+Issues = "https://github.com/Tib612/pluxee-api/issues"
+Documentation = "https://readthedocs.org"
+
+[tool.pytest.ini_options]
+addopts = "--cov=pluxee"
+testpaths = ["tests"]
