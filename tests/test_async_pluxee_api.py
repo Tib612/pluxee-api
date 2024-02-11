@@ -11,11 +11,11 @@ from .conftest import AsyncMockAPIResponse
 
 test_data_dir = pathlib.Path(__file__).parent / "test_data"
 
-CONTENT_BALANCE = open(test_data_dir / "content_balance.html", "r").read()
-CONTENT_EXPIRED_COOKIES = open(test_data_dir / "content_empty_balance.html", "r").read()
-CONTENT_TRANSACTIONS = open(test_data_dir / "content_transactions.html", "r").read()
+CONTENT_BALANCE = open(test_data_dir / "content_balance.html", "r", encoding="utf-8").read()
+CONTENT_EXPIRED_COOKIES = open(test_data_dir / "content_empty_balance.html", "r", encoding="utf-8").read()
+CONTENT_TRANSACTIONS = open(test_data_dir / "content_transactions.html", "r", encoding="utf-8").read()
 CONTENT_EMPTY_BALANCE = CONTENT_EMPTY_TRANSACTIONS = 'href="/fr/user/logout"'
-CONTENT_MALFORMED_TRANSACTIONS = open(test_data_dir / "content_malformed_transactions.html", "r").read()
+CONTENT_MALFORMED_TRANSACTIONS = open(test_data_dir / "content_malformed_transactions.html", "r", encoding="utf-8").read()
 
 
 @pytest.fixture(scope="function")
