@@ -9,18 +9,25 @@ authors = [{name = "Thibaut Capuano"}]
 maintainers = [{name = "Thibaut Capuano"}]
 description = "An unofficial python API to access Pluxee (Sodexo) balance and transactions"
 license = {file = "LICENSE"}
-keywords = ["pluxee", "sodexo", "api"]
+keywords = ["pluxee", "sodexo", "api", "scraping"]
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
     "Intended Audience :: Developers",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
 ]
 
 [options]
 zip_safe = false
 include_package_data = true
-python_requires = ">=3"
+python_requires = ">=3.7"
 packages = ["pluxee-api"]
 install_requires = ["requests", "beautifulsoup4"]
 

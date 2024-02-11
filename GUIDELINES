@@ -1,0 +1,30 @@
+## Installation dev
+```python
+pip install -e .
+```
+
+## Code format
+Code is auto-formatted on commit with Pants.
+But it breaks everything on commit and undo all yout code changes... So don't install the pre-commit !!
+```bash
+pre-commit install
+pre-commit run --all-files --show-diff-on-failure
+```
+
+## Tests
+```bash
+python3 -m pytest --cov=pluxee-api --cov-report term-missing
+```
+
+
+## Tox
+Run tox will
+- run the tests
+- run flake 8
+- run mypy
+On multiple python version if you have them installed.
+
+Tox will also run with github actions on multiple python version and multiple OS.
+```bash
+tox
+```
