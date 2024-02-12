@@ -1,6 +1,5 @@
 import pathlib
 from datetime import date
-import requests
 import pytest
 from pytest_mock import MockerFixture
 import aiohttp
@@ -18,12 +17,23 @@ CONTENT_EMPTY_BALANCE = CONTENT_EMPTY_TRANSACTIONS = 'href="/fr/user/logout"'
 CONTENT_MALFORMED_TRANSACTIONS = open(test_data_dir / "content_malformed_transactions.html", "r", encoding="utf-8").read()
 
 
+
 @pytest.fixture(scope="function")
 def client():
     return PluxeeAsyncClient("Foo", "Bar")
 
 
 class TestPluxeeAsyncClient:
+    def test_aiohttp_not_present(self, mocker):
+        mocker.patch('builtins.__import__', side_effect=ImportError)
+        try:
+            from pluxee import PluxeeAsyncClient # noqa
+            assert False
+        except ImportError:
+            pass
+        
+
+
     @pytest.mark.asyncio
     async def test_login(self, mocker, client: PluxeeAsyncClient):
         async with aiohttp.ClientSession() as session:
