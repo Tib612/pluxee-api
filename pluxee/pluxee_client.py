@@ -8,6 +8,9 @@ from .exceptions import PluxeeAPIError, PluxeeLoginError
 
 
 class PluxeeClient(_PluxeeClient):
+    """
+    A synchronous client providing information about you Pluxee balance and transactions.
+    """
     def _login(self, session):
         # call login
         response = session.post(**self.gen_login_post_args())
@@ -36,6 +39,15 @@ class PluxeeClient(_PluxeeClient):
         return ResponseWrapper(response.content.decode(), response.status_code)
 
     def get_balance(self) -> PluxeeBalance:
+        """ Retrieve the balance of each pass type [lunch, eco, gift, conso].
+
+        Raises:
+            PluxeeAPIError: If an error occured with the content of HTML page.
+            PluxeeLoginError: If an error occured with the login process.
+
+        Returns:
+            PluxeeBalance: The balance.
+        """
         session = requests.Session()
         response = self._make_request(self.BASE_URL_LOCALIZED, {"check_logged_in": "1"}, session)
         return self._parse_balance_from_reponse(response)

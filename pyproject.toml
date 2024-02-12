@@ -16,33 +16,41 @@ classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
 ]
+dependencies  = ["requests", "beautifulsoup4"]
 
 [options]
 zip_safe = false
 include_package_data = true
-python_requires = ">=3.7"
+python_requires = ">=3.8"
 packages = ["pluxee-api"]
-install_requires = ["requests", "beautifulsoup4"]
 
-[options.extras_require]
-testing = [
+[project.optional-dependencies]
+dev = [
     "tox",
     "flake8",
     "mypy",
     "pytest",
+    "types-requests",
     "pytest-mock",
     "pytest-xdist",
     "pytest-cov",
+    "pre-commit",
+    "pants",
+    "types-beautifulsoup4",
+    "build",
+    "pytest-asyncio",
 ]
 async = [
     "aiohttp",
+]
+doc = [
+    "sphinx"
 ]
 
 [options.package_data]
