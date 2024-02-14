@@ -3,13 +3,21 @@ from typing import Optional, List
 
 import requests
 
-from .base_pluxee_client import PassType, PluxeeBalance, PluxeeTransaction, ResponseWrapper, _PluxeeClient
+from .base_pluxee_client import PassType, PluxeeBalance, PluxeeTransaction, _ResponseWrapper, _PluxeeClient
 from .exceptions import PluxeeAPIError, PluxeeLoginError
 
 
 class PluxeeClient(_PluxeeClient):
     """
     A synchronous client providing information about you Pluxee balance and transactions.
+
+    Args:
+        username: The pluxee username.
+        password: The pluxee password.
+
+    Attrs:
+        username: The pluxee username.
+        password: The pluxee password.
     """
     def _login(self, session):
         # call login
@@ -24,10 +32,10 @@ class PluxeeClient(_PluxeeClient):
         except Exception as e:
             raise PluxeeLoginError("Could not find the cookie in the login response") from e
 
-    def _make_request(self, url, params, session) -> ResponseWrapper:
+    def _make_request(self, url, params, session) -> _ResponseWrapper:
         response = session.get(url, params=params)
         if 'href="/fr/user/logout"' in response.content.decode():
-            return ResponseWrapper(response.content.decode(), response.status_code)
+            return _ResponseWrapper(response.content.decode(), response.status_code)
 
         # We got disconnected, the cookies expired
         self._login(session)
@@ -36,13 +44,13 @@ class PluxeeClient(_PluxeeClient):
         if response.status_code != 200:
             raise PluxeeAPIError(f"Pluxee webpage did not respond with the expected status. {response.status_code}")
 
-        return ResponseWrapper(response.content.decode(), response.status_code)
+        return _ResponseWrapper(response.content.decode(), response.status_code)
 
     def get_balance(self) -> PluxeeBalance:
-        """ Retrieve the balance of each pass type [lunch, eco, gift, conso].
+        """ Retrieve the balance of each pass type.
 
         Raises:
-            PluxeeAPIError: If an error occured with the content of HTML page.
+            PluxeeAPIError: If Pluxee webpage did not respond with the expected status or do not contain the expected information.
             PluxeeLoginError: If an error occured with the login process.
 
         Returns:
@@ -55,8 +63,20 @@ class PluxeeClient(_PluxeeClient):
     def get_transactions(
         self, pass_type: PassType, since: Optional[date] = None, until: Optional[date] = None
     ) -> List[PluxeeTransaction]:
-        """ "Since must be smaller that until.
-        The list is retured with the oldest elements first."""
+        """ Retrieve the transactions of the requested pass type in the given interval.
+
+        Args:
+            pass_type: The type of the pass for which to retireve the transactions.
+            since: The start of the interval.
+            until: The start of the interval.
+
+        Raises:
+            PluxeeAPIError: If Pluxee webpage did not respond with the expected status or do not contain the expected information.
+            PluxeeLoginError: If an error occured with the login process.
+
+        Returns:
+            PluxeeBalance: The balance with the oldest elements first.
+        """
         session = requests.Session()
         transactions = []
         page_number = 0

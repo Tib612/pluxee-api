@@ -4,14 +4,15 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pluxee-api"
-version = "0.0.1"
+version = "0.1.0"
 authors = [{name = "Thibaut Capuano"}]
 maintainers = [{name = "Thibaut Capuano"}]
 description = "An unofficial python API to access Pluxee (Sodexo) balance and transactions"
-license = {file = "LICENSE"}
+long_description  = {file = "README.md"}
+license = {file = "MIT License"}
 keywords = ["pluxee", "sodexo", "api", "scraping"]
 classifiers = [
-    "Development Status :: 2 - Pre-Alpha",
+    "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
@@ -95,7 +96,7 @@ no_implicit_reexport = true
 [project.urls]
 Homepage = "https://github.com/Tib612/pluxee-api"
 Issues = "https://github.com/Tib612/pluxee-api/issues"
-Documentation = "https://readthedocs.org"
+Documentation = "https://pluxee-api.readthedocs.io/en/latest/"
 
 [tool.pytest.ini_options]
 addopts = "--cov=pluxee"

@@ -20,18 +20,23 @@ release = '0.0.1'
 
 extensions = [
     'sphinx.ext.autodoc',
-    'sphinx.ext.napoleon'
+    "sphinx.ext.autodoc.typehints",
+    'sphinx.ext.napoleon',
+    "sphinx.ext.viewcode",
+    "sphinx_copybutton",
+    'sphinx.ext.autosummary'
 ]
 
 templates_path = ['_templates']
 exclude_patterns = []
+source_suffix = [".rst", ".md"]
 
 napoleon_google_docstring = True
 napoleon_numpy_docstring = False
 napoleon_include_init_with_doc = True
 napoleon_include_private_with_doc = False
 
-
+autosummary_generate  = True
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output

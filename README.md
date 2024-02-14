@@ -4,7 +4,7 @@
 [![PyPI](https://img.shields.io/pypi/v/pluxee-api)](https://pypi.org/project/pluxee-api/)
 [![Supported Python versions](https://img.shields.io/pypi/pyversions/pluxee-api.svg)](https://pypi.org/project/pluxee-api/)
 [![Documentation status](https://readthedocs.org/projects/pluxee-api/badge/?version=latest)](https://pluxee-api.readthedocs.io/en/latest/?badge=latest)
-[![License](https://img.shields.io/pypi/l/pluxee-api)](https://pypi.org/pypi/sphinx_rtd_theme/)
+[![License](https://img.shields.io/pypi/l/pluxee-api)](https://github.com/tib612/pluxee-api/blob/master/LICENSE)
 
 
 The pluxee-api Python library (unofficial) provides easy access to Pluxee (Sodexo) balance and transaction data. This library allows users to retrieve information such as account balances and transaction history from the Pluxee platform. It offers both synchronous and asynchronous versions for installation.

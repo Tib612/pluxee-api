@@ -9,6 +9,7 @@ from .exceptions import PluxeeAPIError, PluxeeLoginError
 
 
 class PassType(str, Enum):
+    """The different types of pass that are provided."""
     LUNCH = "LUNCH"
     ECO = "ECO"
     CONSO = "CONSO"
@@ -16,6 +17,7 @@ class PassType(str, Enum):
 
 
 class PluxeeBalance:
+    """The balance of each pass."""
     def __init__(self, lunch_pass: float, eco_pass: float, gift_pass: float, conso_pass: float):
         self.lunch_pass = lunch_pass
         self.eco_pass = eco_pass
@@ -30,6 +32,7 @@ class PluxeeBalance:
 
 
 class PluxeeTransaction:
+    """A payment or the reception of your pass."""
     def __init__(self, date: date, amount: float, detail: str, merchant: str):
         self.date = date
         self.amount = amount
@@ -43,7 +46,7 @@ class PluxeeTransaction:
         return self.__str__()
 
 
-class ResponseWrapper:
+class _ResponseWrapper:
     def __init__(self, content: str, status_code: int):
         self.content = content
         self.status_code = status_code
@@ -51,7 +54,7 @@ class ResponseWrapper:
 
 class _PluxeeClient:
     """
-    The busines logic, how to parse and what information to extract.
+    The business logic, how to parse and what information to extract.
 
     Args:
         username: The pluxee username.
@@ -90,7 +93,7 @@ class _PluxeeClient:
     def _price_to_float(price) -> float:
         return float(price.replace("€", "").replace(",", ".").replace("EUR", "").strip().replace(" ", ""))
 
-    def _parse_balance_from_reponse(self, response: ResponseWrapper) -> PluxeeBalance:
+    def _parse_balance_from_reponse(self, response: _ResponseWrapper) -> PluxeeBalance:
         soup = BeautifulSoup(response.content, features="html.parser")
 
         lunch_tag = soup.select_one(self.LUNCH_PASS_SELECTOR)
@@ -111,7 +114,7 @@ class _PluxeeClient:
         return PluxeeBalance(lunch, eco, gift, conso)
 
     def _parse_transactions_from_reponse(
-        self, response: ResponseWrapper, since: Optional[date] = None, until: Optional[date] = None
+        self, response: _ResponseWrapper, since: Optional[date] = None, until: Optional[date] = None
     ) -> Tuple[List[PluxeeTransaction], bool]:
         dom = BeautifulSoup(response.content, features="html.parser")
 
