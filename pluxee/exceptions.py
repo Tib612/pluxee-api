@@ -6,4 +6,3 @@ class PluxeeLoginError(Exception):
 class PluxeeAPIError(Exception):
     """Pluxee webpage did not respond with the expected status or do not contain the expected information."""
     pass
-            

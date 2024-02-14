@@ -8,7 +8,6 @@ version = "0.1.0"
 authors = [{name = "Thibaut Capuano"}]
 maintainers = [{name = "Thibaut Capuano"}]
 description = "An unofficial python API to access Pluxee (Sodexo) balance and transactions"
-long_description  = {file = "README.md"}
 license = {file = "MIT License"}
 keywords = ["pluxee", "sodexo", "api", "scraping"]
 classifiers = [
@@ -24,6 +23,10 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
 ]
 dependencies  = ["requests", "beautifulsoup4"]
+dynamic = ["readme"]
+
+[tool.setuptools.dynamic]
+readme = {file = ["README.md"]}
 
 [options]
 zip_safe = false

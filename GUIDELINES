@@ -18,10 +18,10 @@ python3 -m pytest --cov=pluxee-api --cov-report term-missing
 
 
 ## Tox
-Run tox will
-- run the tests
-- run flake 8
-- run mypy
+Run tox will run
+- the tests
+- flake 8
+- mypy
 On multiple python version if you have them installed.
 
 Tox will also run with github actions on multiple python version and multiple OS.
