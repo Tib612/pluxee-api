@@ -99,3 +99,4 @@ Indices and tables
 * :ref:`search`
 
 :doc:`Auto-generated API reference </api_reference>`.
+:doc:`Auto-generated module </module>`.
