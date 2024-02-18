@@ -9,6 +9,8 @@
 
 The pluxee-api Python library (unofficial) provides easy access to Pluxee (Sodexo) balance and transaction data. This library allows users to retrieve information such as account balances and transaction history from the Pluxee platform. It offers both synchronous and asynchronous versions for installation.
 
+> :warning: **Belgium only**: I could only test this package using my belgian Sodexo card. It should not work for other countries. You can contact me if you need it to work for another country. I will happily improve this package with your help.
+
 ## Features
 - Retrieve account balance
 - Fetch transaction history
