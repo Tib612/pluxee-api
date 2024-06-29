@@ -71,9 +71,14 @@ class TestPluxeeClient:
             "requests.Session.get",
             return_value=MockAPIResponse(303, content=CONTENT_BALANCE),
         )
+        mock_aia: MockerFixture = mocker.patch(
+            "aia.AIASession.cadata_from_url",
+            return_value="my_certificate",
+        )
 
         result = client.get_balance()
         mock_get.assert_called_once()
+        mock_aia.assert_called_once()
         assert isinstance(result, PluxeeBalance)
         assert result.lunch_pass == 1
         assert result.eco_pass == 2
@@ -88,11 +93,17 @@ class TestPluxeeClient:
                 MockAPIResponse(200, content=CONTENT_BALANCE),
             ],
         )
+        mock_aia: MockerFixture = mocker.patch(
+            "aia.AIASession.cadata_from_url",
+            return_value="my_certificate",
+        )
+
         mock_login: MockerFixture = mocker.patch("pluxee.PluxeeClient._login", side_effect=lambda _: 1 + 1)
 
         result = client.get_balance()
         assert mock_get.call_count == 2
         mock_login.assert_called_once()
+        mock_aia.assert_called_once()
         assert isinstance(result, PluxeeBalance)
         assert result.lunch_pass == 1
         assert result.eco_pass == 2
@@ -104,19 +115,29 @@ class TestPluxeeClient:
             "requests.Session.get",
             return_value=MockAPIResponse(200, content=CONTENT_EMPTY_BALANCE),
         )
+        mock_aia: MockerFixture = mocker.patch(
+            "aia.AIASession.cadata_from_url",
+            return_value="my_certificate",
+        )
 
         with pytest.raises(PluxeeAPIError):
             client.get_balance()
         mock_get.assert_called_once()
+        mock_aia.assert_called_once()
 
     def test_get_transactions(self, mocker, client: PluxeeClient):
         mock_get: MockerFixture = mocker.patch(
             "requests.Session.get",
             return_value=MockAPIResponse(303, content=CONTENT_TRANSACTIONS),
         )
+        mock_aia: MockerFixture = mocker.patch(
+            "aia.AIASession.cadata_from_url",
+            return_value="my_certificate",
+        )
 
         transactions = client.get_transactions(PassType.LUNCH, date(2024, 1, 25), date(2024, 3, 1))
         mock_get.assert_called_once()
+        mock_aia.assert_called_once()
 
         assert isinstance(transactions, list)
         assert len(transactions) == 2
@@ -143,11 +164,16 @@ class TestPluxeeClient:
                 MockAPIResponse(200, content=CONTENT_TRANSACTIONS),
             ],
         )
+        mock_aia: MockerFixture = mocker.patch(
+            "aia.AIASession.cadata_from_url",
+            return_value="my_certificate",
+        )
         mock_login: MockerFixture = mocker.patch("pluxee.PluxeeClient._login", side_effect=lambda _: 1 + 1)
 
         transactions = client.get_transactions(PassType.LUNCH, date(2024, 1, 25), date(2024, 3, 1))
         assert mock_get.call_count == 2
         mock_login.assert_called_once()
+        mock_aia.assert_called_once()
         assert isinstance(transactions, list)
         assert len(transactions) == 2
 
@@ -170,10 +196,15 @@ class TestPluxeeClient:
             "requests.Session.get",
             return_value=MockAPIResponse(200, content=CONTENT_EMPTY_TRANSACTIONS),
         )
+        mock_aia: MockerFixture = mocker.patch(
+            "aia.AIASession.cadata_from_url",
+            return_value="my_certificate",
+        )
 
         with pytest.raises(PluxeeAPIError):
             client.get_transactions(PassType.LUNCH, date(2024, 1, 25), date(2024, 3, 1))
         mock_get.assert_called_once()
+        mock_aia.assert_called_once()
 
 
     def test_login_transactions_malformed(self, mocker, client: PluxeeClient):
@@ -181,7 +212,12 @@ class TestPluxeeClient:
             "requests.Session.get",
             return_value=MockAPIResponse(200, content=CONTENT_MALFORMED_TRANSACTIONS),
         )
+        mock_aia: MockerFixture = mocker.patch(
+            "aia.AIASession.cadata_from_url",
+            return_value="my_certificate",
+        )
 
         with pytest.raises(PluxeeAPIError):
             client.get_transactions(PassType.LUNCH, date(2024, 1, 25), date(2024, 3, 1))
         mock_get.assert_called_once()
+        mock_aia.assert_called_once()

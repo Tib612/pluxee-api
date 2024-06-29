@@ -3,6 +3,7 @@ from datetime import date
 import pytest
 from pytest_mock import MockerFixture
 import aiohttp
+import ssl
 
 from pluxee import PassType, PluxeeAPIError, PluxeeBalance, PluxeeAsyncClient, PluxeeLoginError, PluxeeTransaction
 
@@ -93,9 +94,14 @@ class TestPluxeeAsyncClient:
                 "aiohttp.ClientSession.get",
                 return_value=AsyncMockAPIResponse(303, content=CONTENT_BALANCE),
             )
+            mock_aia: MockerFixture = mocker.patch(
+                "pluxee.PluxeeAsyncClient.get_ssl_context",
+                side_effect=async_mock,
+            )
 
             result = await client.get_balance()
             mock_get.assert_called_once()
+            mock_aia.assert_called_once()
             assert isinstance(result, PluxeeBalance)
             assert result.lunch_pass == 1
             assert result.eco_pass == 2
@@ -113,11 +119,16 @@ class TestPluxeeAsyncClient:
                     AsyncMockAPIResponse(200, content=CONTENT_BALANCE),
                 ],
             )
+            mock_aia: MockerFixture = mocker.patch(
+                "pluxee.PluxeeAsyncClient.get_ssl_context",
+                side_effect=async_mock,
+            )
             mock_login = mocker.patch("pluxee.PluxeeAsyncClient._login", side_effect=async_mock)
 
             result = await client.get_balance()
             assert mock_get.call_count == 2
             mock_login.assert_called_once()
+            mock_aia.assert_called_once()
             assert isinstance(result, PluxeeBalance)
             assert result.lunch_pass == 1
             assert result.eco_pass == 2
@@ -132,10 +143,15 @@ class TestPluxeeAsyncClient:
                 "aiohttp.ClientSession.get",
                 return_value=AsyncMockAPIResponse(200, content=CONTENT_EMPTY_BALANCE),
             )
+            mock_aia: MockerFixture = mocker.patch(
+                "pluxee.PluxeeAsyncClient.get_ssl_context",
+                side_effect=async_mock,
+            )
 
             with pytest.raises(PluxeeAPIError):
                 await client.get_balance()
             mock_get.assert_called_once()
+            mock_aia.assert_called_once()
 
 
     @pytest.mark.asyncio
@@ -145,9 +161,14 @@ class TestPluxeeAsyncClient:
                 "aiohttp.ClientSession.get",
                 return_value=AsyncMockAPIResponse(303, content=CONTENT_TRANSACTIONS),
             )
+            mock_aia: MockerFixture = mocker.patch(
+                "pluxee.PluxeeAsyncClient.get_ssl_context",
+                side_effect=async_mock,
+            )
 
             transactions = await client.get_transactions(PassType.LUNCH, date(2024, 1, 25), date(2024, 3, 1))
             mock_get.assert_called_once()
+            mock_aia.assert_called_once()
 
             assert isinstance(transactions, list)
             assert len(transactions) == 2
@@ -177,11 +198,16 @@ class TestPluxeeAsyncClient:
                     AsyncMockAPIResponse(200, content=CONTENT_TRANSACTIONS),
                 ],
             )
+            mock_aia: MockerFixture = mocker.patch(
+                "pluxee.PluxeeAsyncClient.get_ssl_context",
+                side_effect=async_mock,
+            )
             mock_login = mocker.patch("pluxee.PluxeeAsyncClient._login", side_effect=async_mock)
 
             transactions = await client.get_transactions(PassType.LUNCH, date(2024, 1, 25), date(2024, 3, 1))
             assert mock_get.call_count == 2
             mock_login.assert_called_once()
+            mock_aia.assert_called_once()
             assert isinstance(transactions, list)
             assert len(transactions) == 2
 
@@ -207,10 +233,15 @@ class TestPluxeeAsyncClient:
                 "aiohttp.ClientSession.get",
                 return_value=AsyncMockAPIResponse(200, content=CONTENT_EMPTY_TRANSACTIONS),
             )
+            mock_aia: MockerFixture = mocker.patch(
+                "pluxee.PluxeeAsyncClient.get_ssl_context",
+                side_effect=async_mock,
+            )
 
             with pytest.raises(PluxeeAPIError):
                 await client.get_transactions(PassType.LUNCH, date(2024, 1, 25), date(2024, 3, 1))
             mock_get.assert_called_once()
+            mock_aia.assert_called_once()
 
 
     @pytest.mark.asyncio
@@ -220,7 +251,12 @@ class TestPluxeeAsyncClient:
                 "aiohttp.ClientSession.get",
                 return_value=AsyncMockAPIResponse(200, content=CONTENT_MALFORMED_TRANSACTIONS),
             )
+            mock_aia: MockerFixture = mocker.patch(
+                "pluxee.PluxeeAsyncClient.get_ssl_context",
+                side_effect=async_mock,
+            )
 
             with pytest.raises(PluxeeAPIError):
                 await client.get_transactions(PassType.LUNCH, date(2024, 1, 25), date(2024, 3, 1))
             mock_get.assert_called_once()
+            mock_aia.assert_called_once()
