@@ -1,5 +1,9 @@
+import asyncio
 from datetime import date
+from functools import partial
+from ssl import SSLContext
 from typing import Optional, List
+from aia import AIASession
 
 import aiohttp
 
@@ -20,7 +24,7 @@ class PluxeeAsyncClient(_PluxeeClient):
         password: The pluxee password.
     """
 
-    async def _login(self, session):
+    async def _login(self, session: aiohttp.ClientSession):
         # call login
         async with session.post(**self.gen_login_post_args()) as response:
             # Check if we are logged in
@@ -33,7 +37,7 @@ class PluxeeAsyncClient(_PluxeeClient):
             except Exception as e:
                 raise PluxeeLoginError("Could not find the cookie in the login response") from e
 
-    async def _make_request(self, url, params, session) -> _ResponseWrapper:
+    async def _make_request(self, url: str, params: dict, session) -> _ResponseWrapper:
         async with session.get(url, params=params) as response:
             content = await response.text()
             if 'href="/fr/user/logout"' in content:
@@ -47,17 +51,24 @@ class PluxeeAsyncClient(_PluxeeClient):
                 raise PluxeeAPIError(f"Pluxee webpage did not respond with the expected status. {response.status}")
             return _ResponseWrapper(await response.text(), response.status)
 
+    async def get_ssl_context(self, url: str, executor=None) -> SSLContext:
+        return await asyncio.get_event_loop().run_in_executor(
+            executor,
+            partial(AIASession().ssl_context_from_url, url),
+        )
+
     async def get_balance(self) -> PluxeeBalance:
         """ Retrieve the balance of each pass type.
 
         Raises:
             PluxeeAPIError: If Pluxee webpage did not respond with the expected status or do not contain the expected information.
-            PluxeeLoginError: If an error occured with the login process.
+            PluxeeLoginError: If an error occurred with the login process.
 
         Returns:
             PluxeeBalance: The balance.
         """
-        async with aiohttp.ClientSession() as session:
+        ssl_context = await self.get_ssl_context(self.BASE_URL_LOCALIZED)
+        async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=ssl_context)) as session:
             response = await self._make_request(self.BASE_URL_LOCALIZED, {"check_logged_in": "1"}, session)
             return self._parse_balance_from_reponse(response)
 
@@ -67,18 +78,19 @@ class PluxeeAsyncClient(_PluxeeClient):
         """ Retrieve the transactions of the requested pass type in the given interval.
 
         Args:
-            pass_type: The type of the pass for which to retireve the transactions.
+            pass_type: The type of the pass for which to retrieve the transactions.
             since: The start of the interval.
             until: The start of the interval.
 
         Raises:
             PluxeeAPIError: If Pluxee webpage did not respond with the expected status or do not contain the expected information.
-            PluxeeLoginError: If an error occured with the login process.
+            PluxeeLoginError: If an error occurred with the login process.
 
         Returns:
             PluxeeBalance: The balance with the oldest elements first.
         """
-        async with aiohttp.ClientSession() as session:
+        ssl_context = await self.get_ssl_context(self.BASE_URL_LOCALIZED)
+        async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=ssl_context)) as session:
             transactions = []
             page_number = 0
             complete = False

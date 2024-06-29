@@ -6,7 +6,7 @@ import aiohttp
 
 from pluxee import PassType, PluxeeAPIError, PluxeeBalance, PluxeeAsyncClient, PluxeeLoginError, PluxeeTransaction
 
-from .conftest import AsyncMockAPIResponse
+from .conftest import AsyncMockAPIResponse, async_mock
 
 test_data_dir = pathlib.Path(__file__).parent / "test_data"
 
@@ -15,6 +15,7 @@ CONTENT_EXPIRED_COOKIES = open(test_data_dir / "content_empty_balance.html", "r"
 CONTENT_TRANSACTIONS = open(test_data_dir / "content_transactions.html", "r", encoding="utf-8").read()
 CONTENT_EMPTY_BALANCE = CONTENT_EMPTY_TRANSACTIONS = 'href="/fr/user/logout"'
 CONTENT_MALFORMED_TRANSACTIONS = open(test_data_dir / "content_malformed_transactions.html", "r", encoding="utf-8").read()
+
 
 
 
@@ -112,7 +113,7 @@ class TestPluxeeAsyncClient:
                     AsyncMockAPIResponse(200, content=CONTENT_BALANCE),
                 ],
             )
-            mock_login = mocker.patch("pluxee.PluxeeAsyncClient._login", side_effect=lambda _: 1 + 1)
+            mock_login = mocker.patch("pluxee.PluxeeAsyncClient._login", side_effect=async_mock)
 
             result = await client.get_balance()
             assert mock_get.call_count == 2
@@ -176,7 +177,7 @@ class TestPluxeeAsyncClient:
                     AsyncMockAPIResponse(200, content=CONTENT_TRANSACTIONS),
                 ],
             )
-            mock_login = mocker.patch("pluxee.PluxeeAsyncClient._login", side_effect=lambda _: 1 + 1)
+            mock_login = mocker.patch("pluxee.PluxeeAsyncClient._login", side_effect=async_mock)
 
             transactions = await client.get_transactions(PassType.LUNCH, date(2024, 1, 25), date(2024, 3, 1))
             assert mock_get.call_count == 2

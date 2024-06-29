@@ -34,4 +34,4 @@ jobs:
     - name: Install
       run: |
         python -m build
-        pip install dist/pluxee_api-0.1.2-py3-none-any.whl
+        pip install dist/pluxee_api-0.1.3-py3-none-any.whl

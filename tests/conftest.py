@@ -20,3 +20,6 @@ class AsyncMockAPIResponse:
 
     async def text(self):
         return self.content
+
+async def async_mock(*arg, **kwargs):
+    pass

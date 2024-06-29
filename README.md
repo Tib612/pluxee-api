@@ -33,7 +33,14 @@ Alternatively, you can clone the repository from GitHub:
 ```python
 git clone git://github.com/Tib612/pluxee-api.git
 cd pluxee-api
-pip install -e .
+pip install -e ".[dev]"
+```
+
+You may use a virtuel env before install the package:
+```python
+python -m venv venv
+source venv/bin/activate
+pip install --upgrade pip
 ```
 
 
