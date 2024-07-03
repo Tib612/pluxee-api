@@ -37,7 +37,7 @@ class PluxeeAsyncClient(_PluxeeClient):
             except Exception as e:
                 raise PluxeeLoginError("Could not find the cookie in the login response") from e
 
-    async def _make_request(self, url: str, params: dict, session) -> _ResponseWrapper:
+    async def _make_request(self, url: str, params: dict[str, str], session) -> _ResponseWrapper:
         async with session.get(url, params=params) as response:
             content = await response.text()
             if 'href="/fr/user/logout"' in content:
