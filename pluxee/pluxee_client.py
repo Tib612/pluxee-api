@@ -1,5 +1,5 @@
 from datetime import date
-from typing import Optional, List
+from typing import Optional, List, Dict, Union
 from tempfile import NamedTemporaryFile
 import os
 
@@ -35,7 +35,7 @@ class PluxeeClient(_PluxeeClient):
         except Exception as e:
             raise PluxeeLoginError("Could not find the cookie in the login response") from e
 
-    def _make_request(self, url: str, params: dict, session) -> _ResponseWrapper:
+    def _make_request(self, url: str, params: Dict[str, Union[str, int]], session) -> _ResponseWrapper:
         response = session.get(url, params=params)
         if 'logout' in response.content.decode().lower():
             return _ResponseWrapper(response.content.decode(), response.status_code)
