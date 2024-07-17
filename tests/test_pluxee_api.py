@@ -206,7 +206,6 @@ class TestPluxeeClient:
         mock_get.assert_called_once()
         mock_aia.assert_called_once()
 
-
     def test_login_transactions_malformed(self, mocker, client: PluxeeClient):
         mock_get: MockerFixture = mocker.patch(
             "requests.Session.get",

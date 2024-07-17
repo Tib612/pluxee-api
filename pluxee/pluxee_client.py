@@ -65,7 +65,6 @@ class PluxeeClient(_PluxeeClient):
             self.pem_file.close()
             os.unlink(self.pem_file.name)
 
-
     def get_balance(self) -> PluxeeBalance:
         """ Retrieve the balance of each pass type.
 
