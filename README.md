@@ -57,7 +57,8 @@ Documentation for pluxee-api is available at https://pluxee-api.readthedocs.io/e
 ## Questions, Comments, etc?
 If you have any questions, comments, or suggestions regarding pluxee-api, feel free to contact me on LinkedIn https://www.linkedin.com/in/thibaut-capuano/
 
-
+## Known issues
+Known issues can be found here: https://github.com/Tib612/pluxee-api/wiki#known-issues
 
 ## Contributing
 Contributions to pluxee-api are welcome! Whether it's adding features, fixing bugs, or improving documentation, your contributions are appreciated. Simply fork the repository, make your changes, and submit a pull request. Let's make accessing Pluxee data easier together!
