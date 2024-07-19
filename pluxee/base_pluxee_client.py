@@ -1,7 +1,7 @@
 import os
 from datetime import date, datetime
 from enum import Enum
-from typing import Optional, List, Tuple
+from typing import Optional, List
 
 from bs4 import BeautifulSoup
 
@@ -114,18 +114,24 @@ class _PluxeeClient:
         return PluxeeBalance(lunch, eco, gift, conso)
 
     def _parse_transactions_from_reponse(
-        self, response: _ResponseWrapper, since: Optional[date] = None, until: Optional[date] = None
-    ) -> Tuple[List[PluxeeTransaction], bool]:
+        self, response: _ResponseWrapper,
+        transactions: List[PluxeeTransaction],
+        since: Optional[date] = None,
+        until: Optional[date] = None,
+    ) -> bool:
         dom = BeautifulSoup(response.content, features="html.parser")
 
         table = dom.select_one(self.TRANSACTION_TABLE_SELECTOR)
         if not table:
-            # If there is not table, it means something unexpected appen.
-            raise PluxeeAPIError()
+            if not transactions:
+                # If there is not table, it means something unexpected appen.
+                raise PluxeeAPIError()
+            else:
+                # In the case where we already have some transactions in the list, it means we have reach an empty page.
+                return True
 
         entries = dom.select(self.TRANSACTION_SELECTOR)
-        transactions = []
-        complete = False
+        complete = len(entries) < 10
         for entry in entries:
             date_dom = entry.select_one("td.views-field-date")
             merchant_dom = entry.select_one("td.views-field-description")
@@ -144,12 +150,7 @@ class _PluxeeClient:
                 break
             if until and date < until:
                 transactions.append(PluxeeTransaction(date, amount, description, merchant))
-            if len(transactions) < 10:
-                complete = True
-                # TODO
-                # What if there is 10 elements in the last page, the following page will return a 200 but no table
-                # <a href="?type=LUNCH&amp;page=1" class="pager-link">
-        return transactions, complete
+        return complete
 
     def gen_login_post_args(self):
         return {

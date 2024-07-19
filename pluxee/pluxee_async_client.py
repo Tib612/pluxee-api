@@ -91,15 +91,14 @@ class PluxeeAsyncClient(_PluxeeClient):
         """
         ssl_context = await self.get_ssl_context(self.BASE_URL_LOCALIZED)
         async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=ssl_context)) as session:
-            transactions = []
+            transactions: List[PluxeeTransaction] = []
             page_number = 0
             complete = False
             while not complete:
                 response = await self._make_request(
                     self.BASE_URL_TRANSACTIONS, {"type": pass_type.value, "page": page_number}, session
                 )
-                new_transactions, complete = self._parse_transactions_from_reponse(response, since, until)
-                transactions.extend(new_transactions)
+                complete = self._parse_transactions_from_reponse(response, transactions, since, until)
                 page_number += 1
 
             return transactions[::-1]

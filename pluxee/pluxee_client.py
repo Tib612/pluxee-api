@@ -101,7 +101,7 @@ class PluxeeClient(_PluxeeClient):
         with self.TemporaryPEMFile(self.BASE_URL_LOCALIZED) as ssl_context:
             session = requests.Session()
             session.verify = ssl_context
-            transactions = []
+            transactions: List[PluxeeTransaction] = []
             page_number = 0
             complete = False
             while not complete:
@@ -111,8 +111,7 @@ class PluxeeClient(_PluxeeClient):
                     session,
                 )
 
-                new_transactions, complete = self._parse_transactions_from_reponse(response, since, until)
-                transactions.extend(new_transactions)
+                complete = self._parse_transactions_from_reponse(response, transactions, since, until)
                 page_number += 1
 
             return transactions[::-1]
