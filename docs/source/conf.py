@@ -13,7 +13,7 @@ sys.path.insert(0, os.path.abspath('../..'))
 project = 'pluxee-api'
 copyright = '2024, Thibaut Capuano'
 author = 'Thibaut Capuano'
-release = '0.1.4'
+release = '0.1.5'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
