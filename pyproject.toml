@@ -23,7 +23,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
 ]
-dependencies  = ["requests", "beautifulsoup4", "aia"]
+dependencies  = ["requests", "beautifulsoup4", "aia-chaser"]
 dynamic = ["readme"]
 
 [tool.setuptools.dynamic]

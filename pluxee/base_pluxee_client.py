@@ -1,11 +1,18 @@
 import os
 from datetime import date, datetime
 from enum import Enum
-from typing import Optional, List
+from typing import Optional, List, Union, Type
 
 from bs4 import BeautifulSoup
 
 from .exceptions import PluxeeAPIError, PluxeeLoginError
+
+import requests
+try:
+    import aiohttp
+    Session_Type = Type[Union[aiohttp.ClientSession, requests.Session]]
+except ImportError:
+    Session_Type = Type[requests.Session]
 
 
 class PassType(str, Enum):
@@ -85,15 +92,16 @@ class _PluxeeClient:
     TRANSACTION_SELECTOR = "body > div.dialog-off-canvas-main-canvas > div > div > div.transaction--section > div.transaction-list--section > div.transactions-list--table > div > table > tbody > tr"
     TRANSACTION_TABLE_SELECTOR = "body > div.dialog-off-canvas-main-canvas > div > div > div.transaction--section > div.transaction-list--section > div.transactions-list--table > div > table"
 
-    def __init__(self, username: str, password: str) -> None:
+    def __init__(self, username: str, password: str, session: Optional[Session_Type] = None):
         self._username = username or os.environ.get("PLUXEE_USERNAME")
         self._password = password or os.environ.get("PLUXEE_PASSWORD")
+        self._session = session
 
     @staticmethod
     def _price_to_float(price) -> float:
         return float(price.replace("€", "").replace(",", ".").replace("EUR", "").strip().replace(" ", ""))
 
-    def _parse_balance_from_reponse(self, response: _ResponseWrapper) -> PluxeeBalance:
+    def _parse_balance_from_response(self, response: _ResponseWrapper) -> PluxeeBalance:
         soup = BeautifulSoup(response.content, features="html.parser")
 
         lunch_tag = soup.select_one(self.LUNCH_PASS_SELECTOR)

@@ -4,7 +4,7 @@ from tempfile import NamedTemporaryFile
 import os
 
 import requests
-from aia import AIASession
+from aia_chaser import AiaChaser
 
 from .base_pluxee_client import PassType, PluxeeBalance, PluxeeTransaction, _ResponseWrapper, _PluxeeClient
 from .exceptions import PluxeeAPIError, PluxeeLoginError
@@ -22,6 +22,9 @@ class PluxeeClient(_PluxeeClient):
         username: The pluxee username.
         password: The pluxee password.
     """
+    def __init__(self, username: str, password: str, session: Optional[requests.Session] = None):
+        super().__init__(username, password, session)
+
     def _login(self, session):
         # call login
         response = session.post(**self.gen_login_post_args())
@@ -52,10 +55,9 @@ class PluxeeClient(_PluxeeClient):
     class TemporaryPEMFile:
         # Using a temporary file implies we need to close it. Therefore I use a context manager.
         def __init__(self, url):
-            aia_session = AIASession()
-            ca_data = aia_session.cadata_from_url(url)  # Validated PEM certificate chain
+            ca_data = AiaChaser().fetch_ca_chain_for_url(url)
             self.pem_file = NamedTemporaryFile("w", delete=False)
-            self.pem_file.write(ca_data)
+            self.pem_file.write(ca_data.to_pem())
             self.pem_file.flush()
 
         def __enter__(self) -> str:
@@ -76,10 +78,10 @@ class PluxeeClient(_PluxeeClient):
             PluxeeBalance: The balance.
         """
         with self.TemporaryPEMFile(self.BASE_URL_LOCALIZED) as ssl_context:
-            session = requests.Session()
+            session: requests.Session = self._session or requests.Session()
             session.verify = ssl_context
             response = self._make_request(self.BASE_URL_LOCALIZED, {"check_logged_in": "1"}, session)
-            return self._parse_balance_from_reponse(response)
+            return self._parse_balance_from_response(response)
 
     def get_transactions(
         self, pass_type: PassType, since: Optional[date] = None, until: Optional[date] = None
@@ -99,7 +101,7 @@ class PluxeeClient(_PluxeeClient):
             PluxeeBalance: The balance with the oldest elements first.
         """
         with self.TemporaryPEMFile(self.BASE_URL_LOCALIZED) as ssl_context:
-            session = requests.Session()
+            session: requests.Session = self._session or requests.Session()
             session.verify = ssl_context
             transactions: List[PluxeeTransaction] = []
             page_number = 0

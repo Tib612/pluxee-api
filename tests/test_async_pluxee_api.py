@@ -96,7 +96,7 @@ class TestPluxeeAsyncClient:
             )
             mock_aia: MockerFixture = mocker.patch(
                 "pluxee.PluxeeAsyncClient.get_ssl_context",
-                side_effect=async_mock,
+                return_value=ssl.create_default_context(),
             )
 
             result = await client.get_balance()
@@ -121,7 +121,7 @@ class TestPluxeeAsyncClient:
             )
             mock_aia: MockerFixture = mocker.patch(
                 "pluxee.PluxeeAsyncClient.get_ssl_context",
-                side_effect=async_mock,
+                return_value=ssl.create_default_context(),
             )
             mock_login = mocker.patch("pluxee.PluxeeAsyncClient._login", side_effect=async_mock)
 
@@ -145,7 +145,7 @@ class TestPluxeeAsyncClient:
             )
             mock_aia: MockerFixture = mocker.patch(
                 "pluxee.PluxeeAsyncClient.get_ssl_context",
-                side_effect=async_mock,
+                return_value=ssl.create_default_context(),
             )
 
             with pytest.raises(PluxeeAPIError):
@@ -163,7 +163,7 @@ class TestPluxeeAsyncClient:
             )
             mock_aia: MockerFixture = mocker.patch(
                 "pluxee.PluxeeAsyncClient.get_ssl_context",
-                side_effect=async_mock,
+                return_value=ssl.create_default_context(),
             )
 
             transactions = await client.get_transactions(PassType.LUNCH, date(2024, 1, 25), date(2024, 3, 1))
@@ -200,7 +200,7 @@ class TestPluxeeAsyncClient:
             )
             mock_aia: MockerFixture = mocker.patch(
                 "pluxee.PluxeeAsyncClient.get_ssl_context",
-                side_effect=async_mock,
+                return_value=ssl.create_default_context(),
             )
             mock_login = mocker.patch("pluxee.PluxeeAsyncClient._login", side_effect=async_mock)
 
@@ -235,7 +235,7 @@ class TestPluxeeAsyncClient:
             )
             mock_aia: MockerFixture = mocker.patch(
                 "pluxee.PluxeeAsyncClient.get_ssl_context",
-                side_effect=async_mock,
+                return_value=ssl.create_default_context(),
             )
 
             with pytest.raises(PluxeeAPIError):
@@ -253,7 +253,7 @@ class TestPluxeeAsyncClient:
             )
             mock_aia: MockerFixture = mocker.patch(
                 "pluxee.PluxeeAsyncClient.get_ssl_context",
-                side_effect=async_mock,
+                return_value=ssl.create_default_context(),
             )
 
             with pytest.raises(PluxeeAPIError):
