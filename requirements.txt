@@ -1,5 +1,5 @@
 requests==2.31.0
 BeautifulSoup4==4.12.3
-pyopenssl
-cryptography
+pyopenssl==24.2.1
+cryptography==42.0.2
 certifi

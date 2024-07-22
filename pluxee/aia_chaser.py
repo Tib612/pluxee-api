@@ -11,7 +11,7 @@ import select
 import time
 from urllib.request import urlopen, Request
 from urllib.parse import urlsplit
-
+from OpenSSL.crypto import dump_certificate, FILETYPE_PEM, X509
 # pyopenssl
 import OpenSSL
 from OpenSSL._util import (
@@ -652,12 +652,23 @@ class AIASession:
         target_cert = cert_chain[0]
 
         cadata = "\n".join(
-            map(lambda c: c.public_bytes(Encoding.PEM).decode("ascii"), cert_chain)
+            dump_certificate(FILETYPE_PEM, cert).decode("ascii")
+            for cert in cert_chain
         )
 
-        target_name = get_cn_of_name(
-            target_cert.subject
-        ).lower()  # can be "*.example.com"
+        def get_cn_of_name(subject):
+            for component in subject.get_components():
+                if component[0].decode() == "CN":
+                    return component[1].decode()
+            return None
+
+        # Example usage:
+        # Assuming `target_cert` is an X509 object from pyOpenSSL
+        target_name = get_cn_of_name(target_cert.get_subject()).lower()
+
+        # If you expect wildcard domains like "*.example.com", you can handle them as follows
+        if target_name.startswith("*."):
+            target_name = target_name[2:]  # Remove the "*."
 
         # host can have port. target_name has no port
         # port is between 0 and 65535 inclusive
