@@ -11,7 +11,7 @@ import select
 import time
 from urllib.request import urlopen, Request
 from urllib.parse import urlsplit
-from OpenSSL.crypto import dump_certificate, FILETYPE_PEM, X509
+from OpenSSL.crypto import dump_certificate, FILETYPE_PEM
 # pyopenssl
 import OpenSSL
 from OpenSSL._util import (
@@ -22,7 +22,6 @@ from OpenSSL._util import (
 # https://cryptography.io/en/latest/x509/
 import cryptography
 from cryptography import x509
-from cryptography.hazmat.primitives.serialization import Encoding
 from cryptography.hazmat.primitives.serialization import pkcs7
 from cryptography.hazmat.primitives import hashes
 
