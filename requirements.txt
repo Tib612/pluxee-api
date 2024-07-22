@@ -1,3 +1,5 @@
 requests==2.31.0
 BeautifulSoup4==4.12.3
-aia-chaser==1.1.0
+pyopenssl
+cryptography
+certifi

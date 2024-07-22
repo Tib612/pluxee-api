@@ -1,7 +1,9 @@
+import asyncio
 from datetime import date
+from functools import partial
 from ssl import SSLContext
 from typing import Optional, List, Dict, Union
-from aia_chaser import AiaChaser
+from .aia_chaser import AIASession
 
 import aiohttp
 
@@ -51,8 +53,11 @@ class PluxeeAsyncClient(_PluxeeClient):
                 raise PluxeeAPIError(f"Pluxee webpage did not respond with the expected status. {response.status}")
             return _ResponseWrapper(await response.text(), response.status)
 
-    def get_ssl_context(self, url: str) -> SSLContext:  # type: ignore
-        return AiaChaser().make_ssl_context_for_url(url)
+    async def get_ssl_context(self, url: str, executor=None) -> SSLContext:
+        return await asyncio.get_event_loop().run_in_executor(
+            executor,
+            partial(AIASession().ssl_context_from_url, url),
+        )
 
     async def get_balance(self) -> PluxeeBalance:
         """ Retrieve the balance of each pass type.
@@ -66,7 +71,7 @@ class PluxeeAsyncClient(_PluxeeClient):
         """
         session = self._session
         if not session:
-            ssl_context = self.get_ssl_context(self.BASE_URL_LOCALIZED)
+            ssl_context = await self.get_ssl_context(self.BASE_URL_LOCALIZED)
             session = aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=ssl_context))
         session: aiohttp.ClientSession
 
@@ -96,7 +101,7 @@ class PluxeeAsyncClient(_PluxeeClient):
         """
         session = self._session
         if not session:
-            ssl_context = self.get_ssl_context(self.BASE_URL_LOCALIZED)
+            ssl_context = await self.get_ssl_context(self.BASE_URL_LOCALIZED)
             session = aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=ssl_context))
         session: aiohttp.ClientSession
 

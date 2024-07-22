@@ -76,8 +76,8 @@ class TestPluxeeClient:
             return_value=MockAPIResponse(303, content=CONTENT_BALANCE),
         )
         mock_aia: MockerFixture = mocker.patch(
-            "aia_chaser.AiaChaser.fetch_ca_chain_for_url",
-            return_value = MockCAChain(),
+            "pluxee.AIASession.cadata_from_url",
+            return_value="my_certificate",
         )
 
         result = client.get_balance()
@@ -98,8 +98,8 @@ class TestPluxeeClient:
             ],
         )
         mock_aia: MockerFixture = mocker.patch(
-            "aia_chaser.AiaChaser.fetch_ca_chain_for_url",
-            return_value = MockCAChain(),
+            "pluxee.AIASession.cadata_from_url",
+            return_value="my_certificate",
         )
 
         mock_login: MockerFixture = mocker.patch("pluxee.PluxeeClient._login", side_effect=lambda _: 1 + 1)
@@ -120,8 +120,8 @@ class TestPluxeeClient:
             return_value=MockAPIResponse(200, content=CONTENT_EMPTY_BALANCE),
         )
         mock_aia: MockerFixture = mocker.patch(
-            "aia_chaser.AiaChaser.fetch_ca_chain_for_url",
-            return_value = MockCAChain(),
+            "pluxee.AIASession.cadata_from_url",
+            return_value="my_certificate",
         )
 
         with pytest.raises(PluxeeAPIError):
@@ -135,8 +135,8 @@ class TestPluxeeClient:
             return_value=MockAPIResponse(303, content=CONTENT_TRANSACTIONS),
         )
         mock_aia: MockerFixture = mocker.patch(
-            "aia_chaser.AiaChaser.fetch_ca_chain_for_url",
-            return_value = MockCAChain(),
+            "pluxee.AIASession.cadata_from_url",
+            return_value="my_certificate",
         )
 
         transactions = client.get_transactions(PassType.LUNCH, date(2024, 1, 25), date(2024, 3, 1))
@@ -169,8 +169,8 @@ class TestPluxeeClient:
             ],
         )
         mock_aia: MockerFixture = mocker.patch(
-            "aia_chaser.AiaChaser.fetch_ca_chain_for_url",
-            return_value = MockCAChain(),
+            "pluxee.AIASession.cadata_from_url",
+            return_value="my_certificate",
         )
         mock_login: MockerFixture = mocker.patch("pluxee.PluxeeClient._login", side_effect=lambda _: 1 + 1)
 
@@ -201,8 +201,8 @@ class TestPluxeeClient:
             return_value=MockAPIResponse(200, content=CONTENT_EMPTY_TRANSACTIONS),
         )
         mock_aia: MockerFixture = mocker.patch(
-            "aia_chaser.AiaChaser.fetch_ca_chain_for_url",
-            return_value = MockCAChain(),
+            "pluxee.AIASession.cadata_from_url",
+            return_value="my_certificate",
         )
 
         with pytest.raises(PluxeeAPIError):
@@ -216,8 +216,8 @@ class TestPluxeeClient:
             return_value=MockAPIResponse(200, content=CONTENT_MALFORMED_TRANSACTIONS),
         )
         mock_aia: MockerFixture = mocker.patch(
-            "aia_chaser.AiaChaser.fetch_ca_chain_for_url",
-            return_value = MockCAChain(),
+            "pluxee.AIASession.cadata_from_url",
+            return_value="my_certificate",
         )
 
         with pytest.raises(PluxeeAPIError):

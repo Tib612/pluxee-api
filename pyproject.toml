@@ -16,13 +16,14 @@ classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
 ]
-dependencies  = ["requests", "beautifulsoup4", "aia-chaser"]
+dependencies  = ["requests", "beautifulsoup4", "pyopenssl", "cryptography", "certifi"]
 dynamic = ["readme"]
 
 [tool.setuptools.dynamic]
@@ -31,7 +32,7 @@ readme = {file = ["README.md"], content-type = "text/markdown"}
 [options]
 zip_safe = false
 include_package_data = true
-python_requires = ">=3.8"
+python_requires = ">=3.7"
 packages = ["pluxee-api"]
 
 [project.optional-dependencies]

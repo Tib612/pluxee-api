@@ -4,7 +4,7 @@ from tempfile import NamedTemporaryFile
 import os
 
 import requests
-from aia_chaser import AiaChaser
+from .aia_chaser import AIASession
 
 from .base_pluxee_client import PassType, PluxeeBalance, PluxeeTransaction, _ResponseWrapper, _PluxeeClient
 from .exceptions import PluxeeAPIError, PluxeeLoginError
@@ -55,9 +55,10 @@ class PluxeeClient(_PluxeeClient):
     class TemporaryPEMFile:
         # Using a temporary file implies we need to close it. Therefore I use a context manager.
         def __init__(self, url):
-            ca_data = AiaChaser().fetch_ca_chain_for_url(url)
+            aia_session = AIASession()
+            ca_data = aia_session.cadata_from_url(url)
             self.pem_file = NamedTemporaryFile("w", delete=False)
-            self.pem_file.write(ca_data.to_pem())
+            self.pem_file.write(ca_data)
             self.pem_file.flush()
 
         def __enter__(self) -> str:
