@@ -72,7 +72,7 @@ class _PluxeeClient:
         password: The pluxee password.
     """
 
-    DOMAIN = "www.sodexo4you.be"
+    DOMAIN = "users.pluxee.be"
     LANGUAGE = "fr"
     BASE_URL_LOCALIZED = f"https://{DOMAIN}/{LANGUAGE}"
     BASE_URL_TRANSACTIONS = f"{BASE_URL_LOCALIZED}/mon-solde-sodexo-card"
