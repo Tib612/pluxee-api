@@ -18,13 +18,15 @@ class PluxeeAsyncClient(_PluxeeClient):
     Args:
         username: The pluxee username.
         password: The pluxee password.
+        language: The pluxee website language (either 'fr' or 'nl', defaults to 'fr').
 
     Attrs:
         username: The pluxee username.
         password: The pluxee password.
+        language: The pluxee website language (either 'fr' or 'nl', defaults to 'fr').
     """
-    def __init__(self, username: str, password: str, session: Optional[aiohttp.ClientSession] = None):
-        super().__init__(username, password, session)
+    def __init__(self, username: str, password: str, language: str = 'fr', session: Optional[aiohttp.ClientSession] = None):
+        super().__init__(username, password, language, session)
 
     async def _login(self, session: aiohttp.ClientSession):
         # call login
@@ -42,7 +44,7 @@ class PluxeeAsyncClient(_PluxeeClient):
     async def _make_request(self, url: str, params: Dict[str, Union[str, int]], session) -> _ResponseWrapper:
         async with session.get(url, params=params) as response:
             content = await response.text()
-            if 'href="/fr/user/logout"' in content:
+            if f"href=\"/{self._language}/user/logout\"" in content:
                 return _ResponseWrapper(content, response.status)
 
         # We got disconnected, the cookies expired
@@ -71,12 +73,12 @@ class PluxeeAsyncClient(_PluxeeClient):
         """
         session = self._session
         if not session:
-            ssl_context = await self.get_ssl_context(self.BASE_URL_LOCALIZED)
+            ssl_context = await self.get_ssl_context(self._base_url_localized)
             session = aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=ssl_context))
         session: aiohttp.ClientSession
 
         try:
-            response = await self._make_request(self.BASE_URL_LOCALIZED, {"check_logged_in": "1"}, session)
+            response = await self._make_request(self._base_url_localized, {"check_logged_in": "1"}, session)
             return self._parse_balance_from_response(response)
         finally:
             if not self._session:
@@ -101,7 +103,7 @@ class PluxeeAsyncClient(_PluxeeClient):
         """
         session = self._session
         if not session:
-            ssl_context = await self.get_ssl_context(self.BASE_URL_LOCALIZED)
+            ssl_context = await self.get_ssl_context(self._base_url_localized)
             session = aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=ssl_context))
         session: aiohttp.ClientSession
 
@@ -111,7 +113,7 @@ class PluxeeAsyncClient(_PluxeeClient):
             complete = False
             while not complete:
                 response = await self._make_request(
-                    self.BASE_URL_TRANSACTIONS, {"type": pass_type.value, "page": page_number}, session
+                    self._base_url_transactions, {"type": pass_type.value, "page": page_number}, session
                 )
                 complete = self._parse_transactions_from_reponse(response, transactions, since, until)
                 page_number += 1

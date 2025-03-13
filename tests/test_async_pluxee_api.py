@@ -14,7 +14,6 @@ test_data_dir = pathlib.Path(__file__).parent / "test_data"
 CONTENT_BALANCE = open(test_data_dir / "content_balance.html", "r", encoding="utf-8").read()
 CONTENT_EXPIRED_COOKIES = open(test_data_dir / "content_empty_balance.html", "r", encoding="utf-8").read()
 CONTENT_TRANSACTIONS = open(test_data_dir / "content_transactions.html", "r", encoding="utf-8").read()
-CONTENT_EMPTY_BALANCE = CONTENT_EMPTY_TRANSACTIONS = 'href="/fr/user/logout"'
 CONTENT_MALFORMED_TRANSACTIONS = open(test_data_dir / "content_malformed_transactions.html", "r", encoding="utf-8").read()
 
 
@@ -141,7 +140,7 @@ class TestPluxeeAsyncClient:
         async with aiohttp.ClientSession() as _:
             mock_get = mocker.patch(
                 "aiohttp.ClientSession.get",
-                return_value=AsyncMockAPIResponse(200, content=CONTENT_EMPTY_BALANCE),
+                return_value=AsyncMockAPIResponse(200, content=f"href=\"/{client.get_language()}/user/logout\""),
             )
             mock_aia: MockerFixture = mocker.patch(
                 "pluxee.PluxeeAsyncClient.get_ssl_context",
@@ -231,7 +230,7 @@ class TestPluxeeAsyncClient:
         async with aiohttp.ClientSession() as _:
             mock_get = mocker.patch(
                 "aiohttp.ClientSession.get",
-                return_value=AsyncMockAPIResponse(200, content=CONTENT_EMPTY_TRANSACTIONS),
+                return_value=AsyncMockAPIResponse(200, content=f"href=\"/{client.get_language()}/user/logout\""),
             )
             mock_aia: MockerFixture = mocker.patch(
                 "pluxee.PluxeeAsyncClient.get_ssl_context",

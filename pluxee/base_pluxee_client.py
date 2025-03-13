@@ -66,16 +66,15 @@ class _PluxeeClient:
     Args:
         username: The pluxee username.
         password: The pluxee password.
+        language: The pluxee website language (either 'fr' or 'nl', defaults to 'fr').
 
     Attrs:
         username: The pluxee username.
         password: The pluxee password.
+        language: The pluxee website language (either 'fr' or 'nl', defaults to 'fr').
     """
 
     DOMAIN = "users.pluxee.be"
-    LANGUAGE = "fr"
-    BASE_URL_LOCALIZED = f"https://{DOMAIN}/{LANGUAGE}"
-    BASE_URL_TRANSACTIONS = f"{BASE_URL_LOCALIZED}/mon-solde-sodexo-card"
 
     LUNCH_PASS_SELECTOR = (
         'body > div > header > div.header-fixed > div.balance-block > div > ul > li > a[href*="LUNCH"] > span.balance--price'
@@ -92,9 +91,12 @@ class _PluxeeClient:
     TRANSACTION_SELECTOR = "body > div.dialog-off-canvas-main-canvas > div > div > div.transaction--section > div.transaction-list--section > div.transactions-list--table > div > table > tbody > tr"
     TRANSACTION_TABLE_SELECTOR = "body > div.dialog-off-canvas-main-canvas > div > div > div.transaction--section > div.transaction-list--section > div.transactions-list--table > div > table"
 
-    def __init__(self, username: str, password: str, session: Optional[Session_Type] = None):
+    def __init__(self, username: str, password: str, language: str = 'fr', session: Optional[Session_Type] = None):
         self._username = username or os.environ.get("PLUXEE_USERNAME")
         self._password = password or os.environ.get("PLUXEE_PASSWORD")
+        self._language = language
+        self._base_url_localized = f"https://{_PluxeeClient.DOMAIN}/{self._language}"
+        self._base_url_transactions = f"{self._base_url_localized}/" + ('mijn-sodexo-card-saldo' if self._language == 'nl' else 'mon-solde-sodexo-card')
         self._session = session
 
     @staticmethod
@@ -162,9 +164,9 @@ class _PluxeeClient:
 
     def gen_login_post_args(self):
         return {
-            "url": self.BASE_URL_LOCALIZED + "/frontpage",
+            "url": self._base_url_localized + "/frontpage",
             "params": {
-                "destination": f"/{self.LANGUAGE}/frontpage",
+                "destination": f"/{self._language}/frontpage",
             },
             "allow_redirects": False,
             "data": {
@@ -175,6 +177,9 @@ class _PluxeeClient:
                 "op": "Se connecter",
             },
         }
+
+    def get_language(self):
+        return self._language
 
     @staticmethod
     def handle_login_status(status):

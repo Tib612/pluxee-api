@@ -13,7 +13,6 @@ test_data_dir = pathlib.Path(__file__).parent / "test_data"
 CONTENT_BALANCE = open(test_data_dir / "content_balance.html", "rb").read()
 CONTENT_EXPIRED_COOKIES = open(test_data_dir / "content_empty_balance.html", "rb").read()
 CONTENT_TRANSACTIONS = open(test_data_dir / "content_transactions.html", "rb").read()
-CONTENT_EMPTY_BALANCE = CONTENT_EMPTY_TRANSACTIONS = b'href="/fr/user/logout"'
 CONTENT_MALFORMED_TRANSACTIONS = open(test_data_dir / "content_malformed_transactions.html", "rb").read()
 
 
@@ -117,7 +116,7 @@ class TestPluxeeClient:
     def test_login_balances_not_found(self, mocker, client: PluxeeClient):
         mock_get: MockerFixture = mocker.patch(
             "requests.Session.get",
-            return_value=MockAPIResponse(200, content=CONTENT_EMPTY_BALANCE),
+            return_value=MockAPIResponse(200, content=f"href=\"/{client.get_language()}/user/logout\"".encode()),
         )
         mock_aia: MockerFixture = mocker.patch(
             "pluxee.AIASession.cadata_from_url",
@@ -198,7 +197,7 @@ class TestPluxeeClient:
     def test_login_transactions_not_found(self, mocker, client: PluxeeClient):
         mock_get: MockerFixture = mocker.patch(
             "requests.Session.get",
-            return_value=MockAPIResponse(200, content=CONTENT_EMPTY_TRANSACTIONS),
+            return_value=MockAPIResponse(200, content=f"href=\"/{client.get_language()}/user/logout\"".encode()),
         )
         mock_aia: MockerFixture = mocker.patch(
             "pluxee.AIASession.cadata_from_url",
