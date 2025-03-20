@@ -17,13 +17,15 @@ class PluxeeClient(_PluxeeClient):
     Args:
         username: The pluxee username.
         password: The pluxee password.
+        language: The pluxee website language (either 'fr' or 'nl', defaults to 'fr').
 
     Attrs:
         username: The pluxee username.
         password: The pluxee password.
+        language: The pluxee website language (either 'fr' or 'nl', defaults to 'fr').
     """
-    def __init__(self, username: str, password: str, session: Optional[requests.Session] = None):
-        super().__init__(username, password, session)
+    def __init__(self, username: str, password: str, language: str = 'fr', session: Optional[requests.Session] = None):
+        super().__init__(username, password, language, session)
 
     def _login(self, session):
         # call login
@@ -78,10 +80,10 @@ class PluxeeClient(_PluxeeClient):
         Returns:
             PluxeeBalance: The balance.
         """
-        with self.TemporaryPEMFile(self.BASE_URL_LOCALIZED) as ssl_context:
+        with self.TemporaryPEMFile(self._base_url_localized) as ssl_context:
             session: requests.Session = self._session or requests.Session()
             session.verify = ssl_context
-            response = self._make_request(self.BASE_URL_LOCALIZED, {"check_logged_in": "1"}, session)
+            response = self._make_request(self._base_url_localized, {"check_logged_in": "1"}, session)
             return self._parse_balance_from_response(response)
 
     def get_transactions(
@@ -101,7 +103,7 @@ class PluxeeClient(_PluxeeClient):
         Returns:
             PluxeeBalance: The balance with the oldest elements first.
         """
-        with self.TemporaryPEMFile(self.BASE_URL_LOCALIZED) as ssl_context:
+        with self.TemporaryPEMFile(self._base_url_localized) as ssl_context:
             session: requests.Session = self._session or requests.Session()
             session.verify = ssl_context
             transactions: List[PluxeeTransaction] = []
@@ -109,7 +111,7 @@ class PluxeeClient(_PluxeeClient):
             complete = False
             while not complete:
                 response = self._make_request(
-                    self.BASE_URL_TRANSACTIONS,
+                    self._base_url_transactions,
                     {"type": pass_type.value, "page": page_number},
                     session,
                 )
