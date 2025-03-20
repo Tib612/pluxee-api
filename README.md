@@ -50,6 +50,10 @@ To use the pluxee-api library, you need to provide your Pluxee username and pass
 
 You can find examples in the example folder.
 
+## Testing and guidelines
+
+Testing and guidelines can be found in the GUIDELINES file.
+
 ## Documentation
 
 Documentation for pluxee-api is available at https://pluxee-api.readthedocs.io/en/latest/
@@ -62,7 +66,6 @@ Known issues can be found here: https://github.com/Tib612/pluxee-api/wiki#known-
 
 ## Contributing
 Contributions to pluxee-api are welcome! Whether it's adding features, fixing bugs, or improving documentation, your contributions are appreciated. Simply fork the repository, make your changes, and submit a pull request. Let's make accessing Pluxee data easier together!
-
 
 ## License
 This project is licensed under the MIT License
