@@ -96,6 +96,8 @@ class _PluxeeClient:
         self._password = password or os.environ.get("PLUXEE_PASSWORD")
         self._language = language
         self._base_url_localized = f"https://{_PluxeeClient.DOMAIN}/{self._language}"
+        self._base_url_login = f"{self._base_url_localized}/user/login"
+        self._base_url_balance = f"{self._base_url_localized}"
         self._base_url_transactions = f"{self._base_url_localized}/" + ('mijn-sodexo-card-saldo' if self._language == 'nl' else 'mon-solde-sodexo-card')
         self._session = session
 
@@ -164,7 +166,7 @@ class _PluxeeClient:
 
     def gen_login_post_args(self):
         return {
-            "url": self._base_url_localized + "/frontpage",
+            "url": self._base_url_login,
             "params": {
                 "destination": f"/{self._language}/frontpage",
             },

@@ -44,7 +44,7 @@ class PluxeeAsyncClient(_PluxeeClient):
     async def _make_request(self, url: str, params: Dict[str, Union[str, int]], session) -> _ResponseWrapper:
         async with session.get(url, params=params) as response:
             content = await response.text()
-            if f"href=\"/{self._language}/user/logout\"" in content:
+            if 'logout' in content.lower():
                 return _ResponseWrapper(content, response.status)
 
         # We got disconnected, the cookies expired
@@ -78,7 +78,7 @@ class PluxeeAsyncClient(_PluxeeClient):
         session: aiohttp.ClientSession
 
         try:
-            response = await self._make_request(self._base_url_localized, {"check_logged_in": "1"}, session)
+            response = await self._make_request(self._base_url_balance, {"check_logged_in": "1"}, session)
             return self._parse_balance_from_response(response)
         finally:
             if not self._session:

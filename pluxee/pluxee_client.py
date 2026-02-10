@@ -83,7 +83,7 @@ class PluxeeClient(_PluxeeClient):
         with self.TemporaryPEMFile(self._base_url_localized) as ssl_context:
             session: requests.Session = self._session or requests.Session()
             session.verify = ssl_context
-            response = self._make_request(self._base_url_localized, {"check_logged_in": "1"}, session)
+            response = self._make_request(self._base_url_balance, {"check_logged_in": "1"}, session)
             return self._parse_balance_from_response(response)
 
     def get_transactions(
