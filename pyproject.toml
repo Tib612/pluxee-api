@@ -4,11 +4,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pluxee-api"
-version = "0.2.2"
+version = "0.2.3"
 authors = [{name = "Thibaut Capuano"}]
 maintainers = [{name = "Thibaut Capuano"}]
 description = "An unofficial python API to access Pluxee (Sodexo) balance and transactions"
-license = {file = "MIT License"}
+license = "MIT"
+license-files = ["LICENSE"]
 keywords = ["pluxee", "sodexo", "api", "scraping"]
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -26,8 +27,14 @@ classifiers = [
 dependencies  = ["requests", "beautifulsoup4", "pyopenssl", "cryptography", "certifi"]
 dynamic = ["readme"]
 
+[tool.setuptools.packages.find]
+include = ["pluxee*"]
+
 [tool.setuptools.dynamic]
 readme = {file = ["README.md"], content-type = "text/markdown"}
+
+[tool.setuptools.package-data]
+pluxee = ["py.typed"]
 
 [options]
 zip_safe = false

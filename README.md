@@ -36,7 +36,7 @@ cd pluxee-api
 pip install -e ".[dev]"
 ```
 
-You may use a virtuel env before install the package:
+You may use a virtual env before install the package:
 ```python
 python -m venv venv
 source venv/bin/activate
