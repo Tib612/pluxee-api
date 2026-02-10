@@ -8,8 +8,7 @@ version = "0.2.3"
 authors = [{name = "Thibaut Capuano"}]
 maintainers = [{name = "Thibaut Capuano"}]
 description = "An unofficial python API to access Pluxee (Sodexo) balance and transactions"
-license = "MIT"
-license-files = ["LICENSE"]
+license = {text = "MIT"}
 keywords = ["pluxee", "sodexo", "api", "scraping"]
 classifiers = [
     "Development Status :: 3 - Alpha",
