@@ -1,41 +1,32 @@
 """
 This code comes from https://github.com/milahu/python-aia/tree/use-cryptography-module.
 """
-import os
-from functools import lru_cache, partial
+
 import logging
+import os
 import re
+import select
 import socket
 import ssl
-import select
 import time
-from urllib.request import urlopen, Request
+from functools import lru_cache, partial
 from urllib.parse import urlsplit
-from OpenSSL.crypto import dump_certificate, FILETYPE_PEM
-# pyopenssl
-import OpenSSL
-from OpenSSL._util import (
-    lib as _lib,
-    ffi as _ffi,
-)
+from urllib.request import Request, urlopen
 
 # https://cryptography.io/en/latest/x509/
 import cryptography
-from cryptography import x509
-from cryptography.hazmat.primitives.serialization import pkcs7
-from cryptography.hazmat.primitives import hashes
 
+# pyopenssl
+import OpenSSL
+from cryptography import x509
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.serialization import pkcs7
+from OpenSSL._util import ffi as _ffi, lib as _lib
+from OpenSSL.crypto import FILETYPE_PEM, dump_certificate
 
 __version__ = "0.2.0"
 
-# logging.getLogger('aia').setLevel(logging.DEBUG)
-# import aia
 logger = logging.getLogger(__name__)
-
-logger.setLevel(logging.DEBUG)  # FIXME not working
-logger.debug = print
-
-logger.debug(f"imported aia {__version__}")
 
 DEFAULT_USER_AGENT = f"Python-aia/{__version__}"
 
@@ -100,9 +91,7 @@ def get_ca_issuers_of_cert(cert):
     # convert cert from pyopenssl to cryptography
     cert = cert.to_cryptography()
     try:
-        aia_extension = cert.extensions.get_extension_for_class(
-            x509.AuthorityInformationAccess
-        )
+        aia_extension = cert.extensions.get_extension_for_class(x509.AuthorityInformationAccess)
     except x509.extensions.ExtensionNotFound:
         return []
     ca_issuers = []
@@ -279,9 +268,7 @@ class AIASession:
                 # no. here we need pyopenssl cert
                 # for OpenSSL.crypto.X509StoreContext
                 # cert = x509.load_der_x509_certificate(cert_der)
-                cert = OpenSSL.crypto.load_certificate(
-                    OpenSSL.crypto.FILETYPE_ASN1, cert_der
-                )
+                cert = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_ASN1, cert_der)
                 return cert
         if self.cache_dir:
             cache_path = self.cache_dir + "/" + url_parsed.netloc + url_parsed.path
@@ -292,9 +279,7 @@ class AIASession:
                 # no. here we need pyopenssl cert
                 # for OpenSSL.crypto.X509StoreContext
                 # cert = x509.load_der_x509_certificate(cert_der)
-                cert = OpenSSL.crypto.load_certificate(
-                    OpenSSL.crypto.FILETYPE_ASN1, cert_der
-                )
+                cert = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_ASN1, cert_der)
                 return cert
         logger.debug(f"not found cert in cache: {url}")
 
@@ -330,9 +315,7 @@ class AIASession:
             # no. here we need pyopenssl cert
             # for OpenSSL.crypto.X509StoreContext
             # cert = x509.load_der_x509_certificate(cert_der)
-            cert = OpenSSL.crypto.load_certificate(
-                OpenSSL.crypto.FILETYPE_ASN1, cert_bytes
-            )
+            cert = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_ASN1, cert_bytes)
             return cert
         except OpenSSL.crypto.Error:
             pass
@@ -380,9 +363,7 @@ class AIASession:
 
         # try to load PEM format
         try:
-            cert = OpenSSL.crypto.load_certificate(
-                OpenSSL.crypto.FILETYPE_PEM, cert_bytes
-            )
+            cert = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, cert_bytes)
             return cert
         except OpenSSL.crypto.Error:
             pass
@@ -391,10 +372,7 @@ class AIASession:
         #    print("exc", type(exc), exc)
         #    raise
 
-        # TODO more specific
-        raise Exception(
-            f"failed to parse cert from cert_bytes {cert_bytes.hex()}"
-        )
+        raise AIAError(f"failed to parse cert from cert_bytes {cert_bytes.hex()}")
 
     @CachedMethod
     def _get_ca_issuer_cert(self, url, timeout=5):
@@ -440,9 +418,7 @@ class AIASession:
             cert = OpenSSL.crypto.X509.from_cryptography(cert)
         assert isinstance(cert, OpenSSL.crypto.X509)
         try:
-            ext_bc = cert.to_cryptography().extensions.get_extension_for_class(
-                x509.BasicConstraints
-            )
+            ext_bc = cert.to_cryptography().extensions.get_extension_for_class(x509.BasicConstraints)
         except cryptography.x509.extensions.ExtensionNotFound:
             raise ValueError("must be a CA cert")
         if not ext_bc.value.ca:
@@ -466,11 +442,7 @@ class AIASession:
         assert isinstance(cert, OpenSSL.crypto.X509)
         cert_digest = cert.digest("sha256")
         len1 = len(self._trusted_root_certs)
-        self._trusted_root_certs = list(
-            filter(
-                lambda c: c.digest("sha256") != cert_digest, self._trusted_root_certs
-            )
-        )
+        self._trusted_root_certs = list(filter(lambda c: c.digest("sha256") != cert_digest, self._trusted_root_certs))
         len2 = len(self._trusted_root_certs)
         return len1 != len2  # return True if cert was removed
 
@@ -534,9 +506,7 @@ class AIASession:
 
             # logger.debug("verify_chain_idx", verify_chain_idx)
 
-            cert_store_ctx = OpenSSL.crypto.X509StoreContext(
-                cert_store, leaf_cert, rest_certs + missing_certs
-            )
+            cert_store_ctx = OpenSSL.crypto.X509StoreContext(cert_store, leaf_cert, rest_certs + missing_certs)
 
             try:
                 cert_store_ctx.verify_certificate()
@@ -549,16 +519,11 @@ class AIASession:
                 if exc.errors[0] == 20:
                     # exc.errors [20, 1, 'unable to get local issuer certificate']
                     cert = exc.certificate
-                    logger.debug(
-                        f"fetching missing issuer cert for cert {cert.get_subject()}"
-                    )
+                    logger.debug(f"fetching missing issuer cert for cert {cert.get_subject()}")
                     aia_ca_issuers = get_ca_issuers_of_cert(cert)
                     logger.debug("aia_ca_issuers", aia_ca_issuers)
                     if len(aia_ca_issuers) == 0:
-                        raise Exception(
-                            "unable to get local issuer certificate. "
-                            "cert has no aia_ca_issuers"
-                        )
+                        raise AIAError("unable to get local issuer certificate: " "cert has no aia_ca_issuers")
                     issuer_cert = self._get_ca_issuer_cert(aia_ca_issuers[0], timeout)
                     logger.debug("issuer_cert subject", issuer_cert.get_subject())
                     # logger.debug("issuer_cert issuer ", issuer_cert.get_issuer())
@@ -568,10 +533,7 @@ class AIASession:
 
                 if exc.errors[0] == 19:
                     # exc.errors [19, 1, 'self-signed certificate in certificate chain']
-                    logger.debug(
-                        "chain ends with untrusted root cert. "
-                        "hint: aia_session.add_trusted_root_cert(cert)"
-                    )
+                    logger.debug("chain ends with untrusted root cert. " "hint: aia_session.add_trusted_root_cert(cert)")
                     # add return values to exception
                     # exc._aia_verified_cert_chain[-1] is the untrusted root cert
                     verified_cert_chain = self._get_verified_cert_chain(cert_store_ctx)
@@ -582,8 +544,7 @@ class AIASession:
                 raise
 
         # on success, we return from the previous for loop
-        # TODO use a more specific exception
-        raise Exception("exceeded verify_depth")
+        raise AIAError("exceeded verify_depth")
 
     def _get_verified_cert_chain(self, cert_store_ctx):
         # based on OpenSSL.crypto._verify_certificate
@@ -633,27 +594,24 @@ class AIASession:
         """
         host = host.lower()
 
-        print("cadata_and_host_regex_from_host", host)
+        logger.debug(f"cadata_and_host_regex_from_host {host}")
 
         for host_regex in self._cadata_from_host_regex:
-            print("host_regex", host_regex)
+            logger.debug(f"host_regex {host_regex}")
             if host_regex.fullmatch(host):
-                print("cadata_and_host_regex_from_host read cache")
+                logger.debug("cadata_and_host_regex_from_host read cache")
                 # read cache
                 cadata = self._cadata_from_host_regex[host_regex]
                 return cadata, host_regex
 
-        print("cadata_and_host_regex_from_host cache miss")
+        logger.debug("cadata_and_host_regex_from_host cache miss")
 
         # note: this can throw
         cert_chain, _missing_certs = self.aia_chase(host, timeout)
 
         target_cert = cert_chain[0]
 
-        cadata = "\n".join(
-            dump_certificate(FILETYPE_PEM, cert).decode("ascii")
-            for cert in cert_chain
-        )
+        cadata = "\n".join(dump_certificate(FILETYPE_PEM, cert).decode("ascii") for cert in cert_chain)
 
         def get_cn_of_name(subject):
             for component in subject.get_components():
@@ -671,9 +629,7 @@ class AIASession:
 
         # host can have port. target_name has no port
         # port is between 0 and 65535 inclusive
-        host_regex = (
-            target_name.replace(".", "\\.").replace("*", ".*") + "(?::[0-9]{1,5})?"
-        )
+        host_regex = target_name.replace(".", "\\.").replace("*", ".*") + "(?::[0-9]{1,5})?"
         host_regex = re.compile(host_regex)
 
         # limit cache size

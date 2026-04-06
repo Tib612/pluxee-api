@@ -1,9 +1,11 @@
 import pathlib
-from datetime import date
-import requests
-import pytest
-from pytest_mock import MockerFixture
 import ssl
+from datetime import date
+
+import pytest
+import requests
+from pytest_mock import MockerFixture
+
 from pluxee import PassType, PluxeeAPIError, PluxeeBalance, PluxeeClient, PluxeeLoginError, PluxeeTransaction
 
 from .conftest import MockAPIResponse
@@ -20,6 +22,7 @@ class MockCAChain:
     def to_pem(self):
         return "my_certificate"
 
+
 @pytest.fixture(scope="function")
 def client():
     return PluxeeClient("Foo", "Bar")
@@ -32,7 +35,7 @@ class TestPluxeeClient:
             "requests.Session.post",
             return_value=MockAPIResponse(303, content="coucou", headers={"set-cookie": "key=value;..."}),
         )
-        client._login(session) 
+        client._login(session)
         mock_post.assert_called_once()
         assert session.cookies
 
@@ -223,3 +226,58 @@ class TestPluxeeClient:
             client.get_transactions(PassType.LUNCH, date(2024, 1, 25), date(2024, 3, 1))
         mock_get.assert_called_once()
         mock_aia.assert_called_once()
+
+    def test_get_transactions_no_filter(self, mocker, client: PluxeeClient):
+        mock_get: MockerFixture = mocker.patch(
+            "requests.Session.get",
+            return_value=MockAPIResponse(303, content=CONTENT_TRANSACTIONS),
+        )
+        mocker.patch("pluxee.AIASession.cadata_from_url", return_value="my_certificate")
+
+        transactions = client.get_transactions(PassType.LUNCH)
+        mock_get.assert_called_once()
+        assert len(transactions) == 3
+        assert transactions[0].date == date(2024, 1, 24)
+        assert transactions[1].date == date(2024, 1, 28)
+        assert transactions[2].date == date(2024, 2, 6)
+
+    def test_get_transactions_only_since(self, mocker, client: PluxeeClient):
+        mock_get: MockerFixture = mocker.patch(
+            "requests.Session.get",
+            return_value=MockAPIResponse(303, content=CONTENT_TRANSACTIONS),
+        )
+        mocker.patch("pluxee.AIASession.cadata_from_url", return_value="my_certificate")
+
+        transactions = client.get_transactions(PassType.LUNCH, since=date(2024, 1, 27))
+        mock_get.assert_called_once()
+        assert len(transactions) == 2
+        assert transactions[0].date == date(2024, 1, 28)
+        assert transactions[1].date == date(2024, 2, 6)
+
+    def test_get_transactions_only_until(self, mocker, client: PluxeeClient):
+        mock_get: MockerFixture = mocker.patch(
+            "requests.Session.get",
+            return_value=MockAPIResponse(303, content=CONTENT_TRANSACTIONS),
+        )
+        mocker.patch("pluxee.AIASession.cadata_from_url", return_value="my_certificate")
+
+        transactions = client.get_transactions(PassType.LUNCH, until=date(2024, 2, 1))
+        mock_get.assert_called_once()
+        assert len(transactions) == 2
+        assert transactions[0].date == date(2024, 1, 24)
+        assert transactions[1].date == date(2024, 1, 28)
+
+    def test_invalid_language(self):
+        with pytest.raises(ValueError):
+            PluxeeClient("Foo", "Bar", language="de")
+
+    def test_timeout_passed_to_get(self, mocker, client: PluxeeClient):
+        mock_get: MockerFixture = mocker.patch(
+            "requests.Session.get",
+            return_value=MockAPIResponse(303, content=CONTENT_BALANCE),
+        )
+        mocker.patch("pluxee.AIASession.cadata_from_url", return_value="my_certificate")
+
+        client.get_balance()
+        _, kwargs = mock_get.call_args
+        assert kwargs.get("timeout") == client._timeout

@@ -1,5 +1,5 @@
 import asyncio
-from datetime import date
+from datetime import date, timedelta
 
 from pluxee import PassType, PluxeeAsyncClient
 
@@ -18,13 +18,14 @@ async def main():
     # gift_pass: 0.0
     # conso_pass: 0.0
 
-    transactions = await pc.get_transactions(PassType.LUNCH, date(2024, 1, 25), date(2024, 3, 1))
+    transactions = await pc.get_transactions(PassType.LUNCH, date.today() - timedelta(days=60), date.today() - timedelta(days=30))
     print(transactions)
     # Will return a list of PluxeeTransaction object with those attributes
     # date: 2024-06-19
     # amount: -75.24
     # detail: Paiement classique
     # merchant: Colruyt Food Retail
+
 
 if __name__ == "__main__":
     asyncio.run(main())

@@ -22,8 +22,10 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
 ]
-dependencies  = ["requests", "beautifulsoup4", "pyopenssl", "cryptography", "certifi"]
+dependencies  = ["requests==2.31.0", "beautifulsoup4==4.12.3", "pyopenssl==24.2.1", "cryptography==42.0.2", "certifi==2023.11.17"]
 dynamic = ["readme"]
 
 [tool.setuptools.packages.find]
@@ -34,12 +36,6 @@ readme = {file = ["README.md"], content-type = "text/markdown"}
 
 [tool.setuptools.package-data]
 pluxee = ["py.typed"]
-
-[options]
-zip_safe = false
-include_package_data = true
-python_requires = ">=3.7"
-packages = ["pluxee-api"]
 
 [project.optional-dependencies]
 dev = [
@@ -52,7 +48,7 @@ dev = [
     "pytest-xdist",
     "pytest-cov",
     "pre-commit",
-    "pants",
+    "black",
     "types-beautifulsoup4",
     "build",
     "pytest-asyncio",
@@ -111,3 +107,5 @@ Documentation = "https://pluxee-api.readthedocs.io/en/latest/"
 [tool.pytest.ini_options]
 addopts = "--cov=pluxee"
 testpaths = ["tests"]
+asyncio_mode = "strict"
+asyncio_default_fixture_loop_scope = "function"

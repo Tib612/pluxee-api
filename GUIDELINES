@@ -1,13 +1,16 @@
 ## Installation dev
 ```python
-pip install -e .
+pip install -e ".[dev,async]"
 ```
 
 ## Code format
-Code is auto-formatted on commit with Pants.
-But it breaks everything on commit and undo all your code changes... So don't install the pre-commit !!
+Code is auto-formatted on commit with Black and isort via pre-commit.
+Install the hooks once after cloning:
 ```bash
 pre-commit install
+```
+To manually run formatters on all files:
+```bash
 pre-commit run --all-files --show-diff-on-failure
 ```
 

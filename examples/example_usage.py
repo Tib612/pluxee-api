@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 
 from pluxee import PassType, PluxeeClient
 
@@ -15,7 +15,7 @@ print(balance)
 # gift_pass: 0.0
 # conso_pass: 0.0
 
-transactions = pc.get_transactions(PassType.LUNCH, date(2024, 1, 25), date(2024, 3, 1))
+transactions = pc.get_transactions(PassType.LUNCH, date.today() - timedelta(days=60), date.today() - timedelta(days=30))
 print(transactions)
 # Will return a list of PluxeeTransaction object with those attributes
 # date: 2024-06-19

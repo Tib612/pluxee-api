@@ -1,22 +1,30 @@
 import os
 from datetime import date, datetime
 from enum import Enum
-from typing import Optional, List, Union, Type
+from typing import List, Optional, Type, Union
 
+import requests
 from bs4 import BeautifulSoup
 
 from .exceptions import PluxeeAPIError, PluxeeLoginError
 
-import requests
 try:
     import aiohttp
+
     Session_Type = Type[Union[aiohttp.ClientSession, requests.Session]]
 except ImportError:
     Session_Type = Type[requests.Session]
 
 
+_TRANSACTION_PATHS = {
+    'fr': 'mon-solde-sodexo-card',
+    'nl': 'mijn-sodexo-card-saldo',
+}
+
+
 class PassType(str, Enum):
     """The different types of pass that are provided."""
+
     LUNCH = "LUNCH"
     ECO = "ECO"
     CONSO = "CONSO"
@@ -25,6 +33,7 @@ class PassType(str, Enum):
 
 class PluxeeBalance:
     """The balance of each pass."""
+
     def __init__(self, lunch_pass: float, eco_pass: float, gift_pass: float, conso_pass: float):
         self.lunch_pass = lunch_pass
         self.eco_pass = eco_pass
@@ -40,6 +49,7 @@ class PluxeeBalance:
 
 class PluxeeTransaction:
     """A payment or the reception of your pass."""
+
     def __init__(self, date: date, amount: float, detail: str, merchant: str):
         self.date = date
         self.amount = amount
@@ -67,6 +77,7 @@ class _PluxeeClient:
         username: The pluxee username.
         password: The pluxee password.
         language: The pluxee website language (either 'fr' or 'nl', defaults to 'fr').
+        timeout: Request timeout in seconds (defaults to 30).
 
     Attrs:
         username: The pluxee username.
@@ -91,14 +102,19 @@ class _PluxeeClient:
     TRANSACTION_SELECTOR = "body > div.dialog-off-canvas-main-canvas > div > div > div.transaction--section > div.transaction-list--section > div.transactions-list--table > div > table > tbody > tr"
     TRANSACTION_TABLE_SELECTOR = "body > div.dialog-off-canvas-main-canvas > div > div > div.transaction--section > div.transaction-list--section > div.transactions-list--table > div > table"
 
-    def __init__(self, username: str, password: str, language: str = 'fr', session: Optional[Session_Type] = None):
+    def __init__(
+        self, username: str, password: str, language: str = 'fr', session: Optional[Session_Type] = None, timeout: int = 30
+    ):
+        if language not in _TRANSACTION_PATHS:
+            raise ValueError(f"Invalid language '{language}'. Must be one of: {list(_TRANSACTION_PATHS.keys())}")
         self._username = username or os.environ.get("PLUXEE_USERNAME")
         self._password = password or os.environ.get("PLUXEE_PASSWORD")
         self._language = language
+        self._timeout = timeout
         self._base_url_localized = f"https://{_PluxeeClient.DOMAIN}/{self._language}"
         self._base_url_login = f"{self._base_url_localized}/user/login"
         self._base_url_balance = f"{self._base_url_localized}"
-        self._base_url_transactions = f"{self._base_url_localized}/" + ('mijn-sodexo-card-saldo' if self._language == 'nl' else 'mon-solde-sodexo-card')
+        self._base_url_transactions = f"{self._base_url_localized}/{_TRANSACTION_PATHS[self._language]}"
         self._session = session
 
     @staticmethod
@@ -125,8 +141,9 @@ class _PluxeeClient:
 
         return PluxeeBalance(lunch, eco, gift, conso)
 
-    def _parse_transactions_from_reponse(
-        self, response: _ResponseWrapper,
+    def _parse_transactions_from_response(
+        self,
+        response: _ResponseWrapper,
         transactions: List[PluxeeTransaction],
         since: Optional[date] = None,
         until: Optional[date] = None,
@@ -136,10 +153,10 @@ class _PluxeeClient:
         table = dom.select_one(self.TRANSACTION_TABLE_SELECTOR)
         if not table:
             if not transactions:
-                # If there is not table, it means something unexpected appen.
-                raise PluxeeAPIError()
+                # If there is no table, it means something unexpected happened.
+                raise PluxeeAPIError("No transaction table found and no prior transactions collected")
             else:
-                # In the case where we already have some transactions in the list, it means we have reach an empty page.
+                # In the case where we already have some transactions in the list, it means we have reached an empty page.
                 return True
 
         entries = dom.select(self.TRANSACTION_SELECTOR)
@@ -160,7 +177,7 @@ class _PluxeeClient:
             if since and date < since:
                 complete = True
                 break
-            if until and date < until:
+            if not until or date < until:
                 transactions.append(PluxeeTransaction(date, amount, description, merchant))
         return complete
 
